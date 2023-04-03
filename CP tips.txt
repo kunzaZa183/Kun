@@ -1,0 +1,21 @@
+Use cin and cout.
+Use ios::sync_with_stdio(0) and cin.tie(0).
+Don't keep code.
+Always input array before doing anything else.
+Use long long not long.
+Iterate queue/stack pass by value into tmp and pop immediately.
+Don't use count, use ct.
+Don't use min, use mini.
+Don't use max, use maxi
+Don't use unordered_set and unordered_map (especially in codeforces).
+Use int before long long.
+Only use deque if needed.
+Don't use rank use rnk.
+Learn 2D Fenwick ซะ
+Array and Lazy array size is x4 for segment trees.
+Don't use dist use dst;
+If a problem uses 1-based indexing, then use 1-based indexing.
+When binary-searching, always set mid first.
+Use vector don't use array.
+When updating/querying segment tree, use mid to guide the function.
+Segment tree is best implemented with array
