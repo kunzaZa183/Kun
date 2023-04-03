@@ -6,6 +6,7 @@ int main()
     cin.tie(0);
     string s;
     map<string, pair<int, int>> mspii;
+    // hi
     for (int i = 0; i <= 7; i++)
         for (int j = 0; j <= 7; j++)
         {
