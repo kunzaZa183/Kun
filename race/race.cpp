@@ -23,16 +23,28 @@ int findcen(int cur, int par, vector<vector<pair<int, int>>> &adjlist, vector<bo
     return maxid;
   return findcen(maxid, cur, adjlist, node, siz, n);
 }
-int dfscen(int cur, int par, int dist, int depth, map<int, int> &mii, vector<vector<pair<int, int>>> &adjlist, vector<bool> &node, vector<int> &siz)
+int dfscen(int cur, int par, int dist, int depth, int head, map<int, vector<pair<int, int>>> &mii, vector<vector<pair<int, int>>> &adjlist, vector<bool> &node, vector<int> &siz)
 {
   siz[cur] = 1;
-  if (mii.count(dist))
-    mii[dist] = min(mii[dist], depth);
-  else
-    mii[dist] = depth;
+  if (mii[dist].size() <= 1)
+  {
+    mii[dist].push_back({depth, head});
+    if (mii[dist].back().first < mii[dist].front().first)
+      swap(mii[dist].back(), mii[dist].front());
+  }
+  else if (mii[dist].size() == 2)
+  {
+    if (depth < mii[dist].front().first)
+    {
+      swap(mii[dist].front(), mii[dist].back());
+      mii[dist].front() = {depth, head};
+    }
+    else if (depth < mii[dist].back().first)
+      mii[dist].back() = {depth, head};
+  }
   for (auto a : adjlist[cur])
     if (a.first != par && node[a.first])
-      siz[cur] += dfscen(a.first, par, dist + a.second, depth + 1, mii, adjlist, node, siz);
+      siz[cur] += dfscen(a.first, par, dist + a.second, depth + 1, head, mii, adjlist, node, siz);
   return siz[cur];
 }
 int anssubtree(vector<vector<pair<int, int>>> &adjlist, vector<bool> &node, int n, int k)
@@ -41,12 +53,15 @@ int anssubtree(vector<vector<pair<int, int>>> &adjlist, vector<bool> &node, int 
   vector<int> siz(adjlist.size());
   dfs(root, root, adjlist, node, siz);
   int centroid = findcen(root, root, adjlist, node, siz, n);
-  map<int, int> mii;
-  dfscen(centroid, centroid, 0, 0, mii, adjlist, node, siz);
+  map<int, vector<pair<int, int>>> mii; /*length vector<depth, subtree>*/
+  for (auto a : adjlist[centroid])
+    dfscen(a.first, centroid, a.second, 1, a.first, mii, adjlist, node, siz);
   int shortest = INT_MAX;
   for (auto a : mii)
-    if (mii.count(k - a.second))
-      shortest = min(shortest, shortest + mii[k - a.second]);
+    for (auto b : a.second)           // O(1)
+      for (auto c : mii[k - a.first]) // O(1)
+        if (b.second != c.second)
+          shortest = min(shortest, b.first + c.first);
   node[centroid] = 0;
   for (auto a : adjlist[centroid])
     shortest = min(shortest, anssubtree(adjlist, node, siz[a.first], k));
