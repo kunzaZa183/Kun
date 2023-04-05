@@ -14,8 +14,8 @@ Don't use rank use rnk.
 Learn 2D Fenwick ซะ
 Array and Lazy array size is x4 for segment trees.
 Don't use dist use dst;
-If a problem uses 1-based indexing, then use 1-based indexing.
 When binary-searching, always set mid first.
 Use vector don't use array.
 When updating/querying segment tree, use mid to guide the function.
 Segment tree is best implemented with array
+When converting from 1-based to 0-based indexing, --
