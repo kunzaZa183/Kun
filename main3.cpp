@@ -1,27 +1,31 @@
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
-#define MOD 1000000
-int rand1()
+using namespace __gnu_pbds;
+struct edge
 {
-    int binary = rand();
-    if (binary % 2)
-        return rand() % MOD;
-    else
-        return -(rand() % MOD);
-}
+  int a, b, weight;
+  friend bool operator<(edge a, edge x)
+  {
+    if (a.weight != x.weight)
+      return a.weight < x.weight;
+    if (a.a != x.a)
+      return a.a < x.a;
+    if (a.b != x.b)
+      return a.b < x.b;
+  }
+};
 int main()
 {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    freopen("input.txt", "w", stdout);
-    int n = 100000, qs = 50000;
-    srand(time(NULL));
-    cout << n << ' ' << qs << '\n';
-    for (int i = 0; i < n; i++)
-        cout << rand1() << "\n";
-    for (int i = 0; i < qs; i++)
-    {
-        int a = rand() % n + 1, b = rand() % n + 1;
-        cout << min(a, b) << ' ' << max(a, b) << ' ' << rand1() + double(rand()) / RAND_MAX << '\n';
-    }
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  edge a = {1, 2, 3}, b = {1, 3, 4}, c = {3, 4, 3};
+  tree<edge, null_type, less<edge>, rb_tree_tag, tree_order_statistics_node_update> pbds;
+  pbds.insert(a), pbds.insert(b), pbds.insert(c);
+  for (int i = 0; i < 3; i++)
+  {
+    edge x = *pbds.find_by_order(i);
+    cout << x.a << ' ' << x.b << ' ' << x.weight << '\n';
+  }
 }

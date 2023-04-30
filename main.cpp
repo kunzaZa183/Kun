@@ -1,68 +1,101 @@
-// #include "pointlib.h"
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
-
-static int n;
-static int x[10010];
-static int y[10010];
-
-int point_init()
+using namespace __gnu_pbds;
+struct edge
 {
-  scanf("%d", &n);
-  for (int i = 0; i < n; i++)
-    scanf("%d %d", &x[i], &y[i]);
-  return n;
-}
-
-int query(int i, int j)
+  int a, b, weight;
+  friend bool operator<(edge a, edge b)
+  {
+    if (a.weight != b.weight)
+      return a.weight < b.weight;
+    if (a.a != b.a)
+      return a.a < b.a;
+    if (a.b != b.b)
+      return a.b < b.b;
+  }
+};
+vector<vector<pair<int, int>>> adjlist; // in time
+vector<bool> important;
+vector<int> subtreesize;
+vector<bool> in;
+set<edge> se;
+void findsubtreesize(int node, int par)
 {
-  return ((x[i] > x[j] ? x[i] - x[j] : x[j] - x[i]) +
-          (y[i] > y[j] ? y[i] - y[j] : y[j] - y[i]));
+  subtreesize[node] = 1;
+  for (auto a : adjlist[node])
+    if (a.first != par && in[a.first])
+    {
+      findsubtreesize(a.first, node);
+      subtreesize[node] += subtreesize[a.first];
+    }
 }
-
+int findcentroid(int node, int par, int n)
+{
+  int maxi = INT_MIN, maxid;
+  for (auto a : adjlist[node])
+    if (a.first != par && in[a.first])
+      if (subtreesize[a.first] > 2 * n)
+        return findcentroid(a.first, node, n);
+  return node;
+}
+void process(int node, int par, map<pair<int, int>, int> &mpiii)
+{
+  if (important[node] && !se.empty())
+    mpiii[{se.rbegin()->a, se.rbegin()->b}]++;
+  for (auto a : adjlist[node])
+    if (a.first != in[node] && a.first != par)
+    {
+      se.insert({min(node, a.first), max(node, a.first), a.second});
+      process(a.first, node, mpiii);
+      se.erase({min(node, a.first), max(node, a.first), a.second});
+    }
+}
+int centroid(int node)
+{
+  findsubtreesize(node, node);
+  int cent = findcentroid(node, node, subtreesize[node]);
+  vector<map<pair<int, int>, int>> vmpiii(adjlist[cent].size());
+  int ct = 0;
+  for (auto a : adjlist[cent])
+    if (in[a.first])
+      process(a.first, cent, vmpiii[ct++]);
+  tree<edge, null_type, less<edge>, rb_tree_tag, tree_order_statistics_node_update> pbds;
+  for (auto &a : vmpiii)
+    for (auto b : a)
+      pbds.insert({b.first.first, b.first.second, b.second});
+  for (auto &a : vmpiii)
+  {
+    for (auto b : a)
+      pbds.erase({b.first.first, b.first.second, b.second});
+    // i cant
+    for (auto b : a)
+      pbds.insert({b.first.first, b.first.second, b.second});
+    
+  }
+  in[cent] = 0;
+}
 int main()
 {
-  int n = point_init();
-  int x = query(0, 1);
-  if (n == 2)
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  int n, m;
+  cin >> n >> m;
+  important.resize(n);
+  while (m--)
   {
-    cout << "0 0\n";
-    cout << x - 1 << " 1\n";
-    return 0;
+    int x;
+    cin >> x;
+    important[x] = 1;
   }
-  vector<pair<int, int>> vpii(n, {INT_MAX, INT_MAX});
-  vpii[0] = {0, 0};
-  for (int i = 2; i < n; i++)
+  adjlist.resize(n);
+  for (int i = 0; i < n - 1; i++)
   {
-    int y = query(1, i), z = query(0, i);
-    if (x > y && x > z)
-    {
-      if (y + z == x)
-      {
-        vpii[1] = {x, 0};
-        vpii[i] = {z, 0};
-      }
-      else if (y + z == x + 2)
-      {
-        vpii[1] = {x, 0};
-        vpii[i] = {z - 1, 1};
-      }
-      else if (y + z == x + 1)
-        vpii[1] = {x - 1, 1};
-    }
-    else if (y > x && y > z)
-    {
-      // assume that vpii[1] is to the right
-      if (x + z == y)
-      {
-        vpii[1] = {x, 0};
-        vpii[i] = {-z, 0};
-      }
-      else if(x+z==y+1)
-      {
-        .
-        
-      }
-    }
+    int p, q, t;
+    cin >> p >> q >> t;
+    adjlist[p].push_back({q, t}), adjlist[q].push_back({p, t});
   }
+  subtreesize.resize(n);
+  in.resize(n, 1);
 }
