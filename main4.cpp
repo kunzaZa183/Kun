@@ -2,20 +2,29 @@
 using namespace std;
 int main()
 {
-    string tmp;
-    vector<string> ss, ss2;
-    ifstream out("out.txt");
-    while (getline(out, tmp))
-        ss.push_back(tmp);
-    ifstream out2("out2.txt");
-    while (getline(out2, tmp))
-        ss2.push_back(tmp);
-    for (int i = 0; i < ss.size(); i++)
-        if (ss[i] != ss2[i])
-        {
-            cout << i << "\n";
-            cout << "NO\n";
-            return 0;
-        }
-    cout << "YES\n";
+  // ios::sync_with_stdio(0);
+  // cin.tie(0);
+  freopen("in.txt", "w", stdout);
+  int n = 10;
+  cout << n << '\n';
+  vector<int> vi(n);
+  srand(time(NULL));
+  for (int i = 0; i < n; i++)
+  {
+    vi[i] = rand() % 5+1;
+    cout << vi[i] << ' ';
+  }
+  sort(vi.begin(), vi.end());
+  cout << "\n";
+  int qs = 30;
+  cout << qs << '\n';
+  for (int i = 0; i < qs; i++)
+  {
+    int type = rand() % 2;
+    cout << type + 1 << " ";
+    if (type == 0)
+      cout << rand() % n+1 << ' ' << rand() % n+1 << '\n';
+    else if (type == 1)
+      cout << rand() % n+1 << ' ' << rand() % n+1 << ' ' << vi[rand() % vi.size()] << '\n';
+  }
 }
