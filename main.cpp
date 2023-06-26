@@ -1,101 +1,72 @@
 #include <bits/stdc++.h>
 using namespace std;
-struct trie
+#define int long long
+vector<vector<int>> dp;
+vector<int> vi;
+int recurdp(int in, int l)
 {
-  int depth;
-  trie *l, *r;
-  trie()
+  if (l == -1)
+    return 0;
+  if (dp[in][l] == -1)
   {
-    depth = 0;
-    l = nullptr, r = nullptr;
+    if (in == 0)
+      dp[in][l] = 0;
+    else
+      dp[in][l] = 1;
+    for (int i = in + 1; i < dp.size(); i++)
+      if (vi[in] < vi[i])
+        dp[in][l] += recurdp(i, l);
+      else if (vi[in] > vi[i])
+        dp[in][l] += recurdp(i, l - 1);
   }
-} *root;
-void addone(trie *cur, int add)
+  return dp[in][l];
+}
+vector<int> cur;
+void findans(int in, int l, int &k)
 {
-  if (cur->depth == 30)
+  if (l == -1)
     return;
-  if (add & (30 - cur->depth))
+  if (k == 0)
   {
-    if (cur->r == nullptr)
-    {
-      cur->r = new trie;
-      cur->r->depth = cur->depth + 1;
-    }
-    addone(cur->r, add);
+    for (auto a : cur)
+      cout << a << ' ';
+    cout << '\n';
+    exit(0);
   }
-  else
+  if (k >= dp[in][l])
   {
-    if (cur->l == nullptr)
-    {
-      cur->l = new trie;
-      cur->l->depth = cur->depth + 1;
-    }
-    addone(cur->l, add);
+    k -= dp[in][l];
+    return;
   }
-}
-int closest(trie *cur, int num, int curi)
-{
-  if (cur->depth == 30)
-    return num ^ curi;
-  if (num & (1 << (30 - cur->depth)))
-  {
-    if (cur->r == nullptr)
-      return closest(cur->l, num, curi);
-    return closest(cur->r, num, curi + (1 << (30 - cur->r->depth)));
-  }
-  else
-  {
-    if (cur->l == nullptr)
-      return closest(cur->r, num, curi + (1 << (30 - cur->r->depth)));
-    return closest(cur->l, num, curi);
-  }
-}
-pair<int, vector<int> *> smalltolarge(trie *cur)
-{
-  if (cur->l == nullptr && cur->r == nullptr)
-    return {0, new vector<int>};
-  if (cur->r == nullptr)
-    return smalltolarge(cur->l);
-  if (cur->l == nullptr)
-    return smalltolarge(cur->r);
-  auto zero = smalltolarge(cur->l), one = smalltolarge(cur->r);
-  if (zero.second->size() > one.second->size())
-  {
-    int mini = INT_MAX;
-    for (auto a : *one.second)
-    {
-      zero.second->push_back(a);
-      mini = min(mini, closest(cur->l, a, 0));
-    }
-    if (mini == INT_MAX)
-      mini = 0;
-    return {zero.first + one.first + mini, zero.second};
-  }
-  else if (zero.second->size() <= one.second->size())
-  {
-    int mini = INT_MAX;
-    for (auto a : *zero.second)
-    {
-      one.second->push_back(a);
-      mini = min(mini, closest(cur->r, a, 0));
-    }
-    if (mini == INT_MAX)
-      mini = 0;
-    return {zero.first + one.first + mini, one.second};
-  }
+  vector<pair<int, int>> order; // value in
+  for (int i = in + 1; i < dp.size(); i++)
+    order.push_back({vi[i], i});
+  sort(order.begin(), order.end());
+  for (auto a : order)
+    if (vi[in] < a.first)
+      findans(a.second, l, k);
+    else if(vi[in]>a.first)
+      findans(a.second,l-1,);
+
 }
 int main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  int n;
-  cin >> n;
-  while (n--)
+  int n, l, k;
+  cin >> n >> l >> k;
+  vi.resize(n, -1);
+  for (int i = 1; i <= n; i++)
+    cin >> vi[i];
+  if (k == 0)
   {
-    int x;
-    cin >> x;
-    addone(root, x);
+    cout << "0\n";
+    return 0;
   }
-  auto ans = smalltolarge(root);
-  cout << ans.first << "\n";
+  dp.resize(n + 1, vector<int>(l + 1, -1));
+  if (k >= dp[0][l])
+  {
+    cout << "-1\n";
+    return 0;
+  }
 }

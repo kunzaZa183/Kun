@@ -1,14 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-int32_t main()
+int main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  int lcm = 1;
-  for (int i = 1; i <= 16; i++)
-  {
-    lcm = lcm * i / __gcd(lcm, i);
-    cout << lcm << '\n';
-  }
+  freopen("in.txt", "w", stdout);
+  int n = 10;
+  srand(time(NULL));
+  cout << n << '\n';
+  for (int i = 0; i < n; i++)
+    cout << rand() % 4999 + 1 << ' ' << rand() % 4999 + 1 << '\n';
 }
