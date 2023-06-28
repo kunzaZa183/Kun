@@ -107,22 +107,30 @@ retval* dfs(int cur)
   int lowsum = 0;
   if (lower != 0)
     lowsum = qsum[lower - 1];
-  maxi->val = (maxi->val + (each[cur] * lower - lowsum)) % MOD;
-  maxi->val = (maxi->val + ((qsum.back() - lowsum) - (zvi.size() - lower) * each[cur])) % MOD;
+  maxi->val = (maxi->val + (each[cur] * lower - lowsum) % MOD) % MOD;
+  maxi->val = (maxi->val + ((qsum.back() - lowsum) - (zvi.size() - lower) * each[cur]) % MOD) % MOD;
   for (auto a : vr)
     if (a != maxi)
     {
       maxi->val = (maxi->val + a->val) % MOD;
+      vector<node*> vn;
       while (a->head != NULL)
       {
         node* tmp = leftmost(a->head);
         split(a->head, tmp, a->head, tmp->key);
         node* tmp2 = new node;
         split(maxi->head, maxi->head, tmp2, tmp->key);
-        maxi->val = (maxi->val + (tmp->key.first * sizof(maxi->head) - sumof(maxi->head))) % MOD;
-        maxi->val = (maxi->val + (sumof(tmp2) - tmp->key.first * sizof(tmp2))) % MOD;
-        merge(maxi->head, maxi->head, tmp);
+        maxi->val = (maxi->val + (tmp->key.first * sizof(maxi->head) - sumof(maxi->head)) % MOD) % MOD;
+        maxi->val = (maxi->val + (sumof(tmp2) - tmp->key.first * sizof(tmp2)) % MOD) % MOD;
         merge(maxi->head, maxi->head, tmp2);
+        vn.push_back(tmp);
+      }
+      for (auto a : vn)
+      {
+        node* tmp = new node;
+        split(maxi->head, maxi->head, tmp, a->key);
+        merge(maxi->head, maxi->head, a);
+        merge(maxi->head, maxi->head, tmp);
       }
     }
   node* tmp = new node;
@@ -130,8 +138,8 @@ retval* dfs(int cur)
   tmp->sumofsubtree = each[cur];
   node* tmp2 = new node;
   split(maxi->head, maxi->head, tmp2, tmp->key);
-  maxi->val = (maxi->val + (each[cur] * sizof(maxi->head) - sumof(maxi->head))) % MOD;
-  maxi->val = (maxi->val + (sumof(tmp2) - each[cur] * sizof(tmp2))) % MOD;
+  maxi->val = (maxi->val + (each[cur] * sizof(maxi->head) - sumof(maxi->head)) % MOD) % MOD;
+  maxi->val = (maxi->val + (sumof(tmp2) - each[cur] * sizof(tmp2)) % MOD) % MOD;
   merge(maxi->head, maxi->head, tmp);
   merge(maxi->head, maxi->head, tmp2);
   ans[cur] = (maxi->val + eachz) % MOD;
@@ -142,8 +150,6 @@ vector<int32_t> compute_cost(int32_t n, int32_t m, vector<int32_t> P, vector<int
   children.resize(n);
   for (int i = 1; i < P.size(); i++)
     children[P[i]].push_back(i);
-  for (auto& a : X)
-    a = a * a;
   for (auto a : Z)
     zvi.push_back(a);
   for (auto& a : zvi)
@@ -155,6 +161,8 @@ vector<int32_t> compute_cost(int32_t n, int32_t m, vector<int32_t> P, vector<int
   ans.resize(n);
   for (auto& a : X)
     each.push_back(a);
+  for (auto& a : each)
+    a = a * a;
   for (int i = 1; i < m - 1; i++)
     eachz = (eachz + (zvi[i] * i - (qsum[i - 1])) % MOD) % MOD;
   eachz = (eachz + (m * zvi.back() - qsum.back()) % MOD) % MOD;

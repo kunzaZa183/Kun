@@ -142,8 +142,6 @@ vector<int32_t> compute_cost(int32_t n, int32_t m, vector<int32_t> P, vector<int
   children.resize(n);
   for (int i = 1; i < P.size(); i++)
     children[P[i]].push_back(i);
-  for (auto& a : X)
-    a = a * a;
   for (auto a : Z)
     zvi.push_back(a);
   for (auto& a : zvi)
@@ -155,6 +153,8 @@ vector<int32_t> compute_cost(int32_t n, int32_t m, vector<int32_t> P, vector<int
   ans.resize(n);
   for (auto& a : X)
     each.push_back(a);
+  for (auto& a : each)
+    a = a * a;
   for (int i = 1; i < m - 1; i++)
     eachz = (eachz + (zvi[i] * i - (qsum[i - 1])) % MOD) % MOD;
   eachz = (eachz + (m * zvi.back() - qsum.back()) % MOD) % MOD;
