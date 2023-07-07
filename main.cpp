@@ -1,20 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
+#define int long long
 struct trie
 {
-  int depth;
-  trie *l, *r;
+  int depth,num;
+  trie* l, * r;
   trie()
   {
     depth = 0;
     l = nullptr, r = nullptr;
   }
 } *root;
-void addone(trie *cur, int add)
+void addone(trie* cur, int add)
 {
-  if (cur->depth == 30)
+  if (cur->depth == 31)
+  {
+    cur->num = add;
     return;
-  if (add & (30 - cur->depth))
+  }
+  if (add & (1 << (30 - cur->depth)))
   {
     if (cur->r == nullptr)
     {
@@ -33,27 +37,27 @@ void addone(trie *cur, int add)
     addone(cur->l, add);
   }
 }
-int closest(trie *cur, int num, int curi)
+int closest(trie* cur, int num)
 {
-  if (cur->depth == 30)
-    return num ^ curi;
+  if (cur->depth == 31)
+    return num ^ cur->num;
   if (num & (1 << (30 - cur->depth)))
   {
     if (cur->r == nullptr)
-      return closest(cur->l, num, curi);
-    return closest(cur->r, num, curi + (1 << (30 - cur->r->depth)));
+      return closest(cur->l, num);
+    return closest(cur->r, num );
   }
   else
   {
     if (cur->l == nullptr)
-      return closest(cur->r, num, curi + (1 << (30 - cur->r->depth)));
-    return closest(cur->l, num, curi);
+      return closest(cur->r, num);
+    return closest(cur->l, num);
   }
 }
-pair<int, vector<int> *> smalltolarge(trie *cur)
+pair<int, vector<int>*> smalltolarge(trie* cur)
 {
   if (cur->l == nullptr && cur->r == nullptr)
-    return {0, new vector<int>};
+    return { 0, new vector<int>(1,cur->num) };
   if (cur->r == nullptr)
     return smalltolarge(cur->l);
   if (cur->l == nullptr)
@@ -65,11 +69,11 @@ pair<int, vector<int> *> smalltolarge(trie *cur)
     for (auto a : *one.second)
     {
       zero.second->push_back(a);
-      mini = min(mini, closest(cur->l, a, 0));
+      mini = min(mini, closest(cur->l, a));
     }
     if (mini == INT_MAX)
       mini = 0;
-    return {zero.first + one.first + mini, zero.second};
+    return { zero.first + one.first + mini, zero.second };
   }
   else if (zero.second->size() <= one.second->size())
   {
@@ -77,19 +81,21 @@ pair<int, vector<int> *> smalltolarge(trie *cur)
     for (auto a : *zero.second)
     {
       one.second->push_back(a);
-      mini = min(mini, closest(cur->r, a, 0));
+      mini = min(mini, closest(cur->r, a));
     }
     if (mini == INT_MAX)
       mini = 0;
-    return {zero.first + one.first + mini, one.second};
+    return { zero.first + one.first + mini, one.second };
   }
 }
-int main()
+int32_t main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
   int n;
   cin >> n;
+  root = new trie;
+  root->depth = 0;
   while (n--)
   {
     int x;
