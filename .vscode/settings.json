@@ -70,5 +70,6 @@
         "valarray": "cpp",
         "rope": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Enabled"
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.default.compilerPath": "C:\\Program Files\\CodeBlocks\\MinGW"
 }

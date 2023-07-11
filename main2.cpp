@@ -8,12 +8,10 @@ int main()
   cin >> n >> h;
   vector<string> vvi(n);
   for (auto &a : vvi)
-    cin>>a;
-  vector<int> received(n
-  );
-  while(--h)
+    cin >> a;
+  vector<int> received(n);
+  while (--h)
   {
-
+    
   }
-  
 }
