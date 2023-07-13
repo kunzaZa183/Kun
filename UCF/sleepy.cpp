@@ -7,8 +7,6 @@ int main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  freopen("sleepy.in", "r", stdin);
-  freopen("sleepy.out", "w", stdout);
   int n;
   cin >> n;
   vector<int> vi(n);
@@ -30,7 +28,7 @@ int main()
   {
     cout << (wrong - i) + ti.order_of_key(vi[i]);
     if (i != wrong)
-      cout << " ";
+      cout << ' ';
     ti.insert(vi[i]);
   }
   cout << "\n";

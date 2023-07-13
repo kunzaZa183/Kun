@@ -39,25 +39,26 @@ int main()
 {
   // ios::sync_with_stdio(0);
   // cin.tie(0);
-  int n, q;
-  cin >> n >> q;
-  seg.resize(4 * n, 0);
-  lazy.resize(4 * n, 0);
-  for(int i=0;i<n;i++)
+  int tests;
+  cin >> tests;
+  while (tests--)
   {
-    int x;
-    cin>>x;
-    update(0,0,n-1,i,i,x);
-  }
-  while (q--)
-  {
-    int l, r, h;
-    cin >> l >> r >> h;
-    l--, r--;
-    update(0, 0, n - 1, l, r, 1);
-    if (seg[0] >= h)
-      cout << "blocked\n";
-    else
-      cout << "hit\n";
+    int n, q;
+    cin >> n >> q;
+    seg.clear();
+    lazy.clear();
+    seg.resize(4 * n, 0);
+    lazy.resize(4 * n, 0);
+    while (q--)
+    {
+      int l, r, h;
+      cin >> l >> r >> h;
+      l--, r--;
+      update(0, 0, n - 1, l, r, 1);
+      if (seg[0] >= h)
+        cout << "blocked\n";
+      else
+        cout << "hit\n";
+    }
   }
 }
