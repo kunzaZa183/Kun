@@ -1,26 +1,10 @@
-# Math Examples
+x = int(input("Enter an integer for x: "))
+y = int(input("Enter an integer for y: "))
+z = float(input("Enter a decimal for z: "))
 
-print("Example 1") 
+print("Product of x and y is " + str(x * y))
+print("Product of x, y, and z is " + str(x * y * z))
 
-print("Total is", 3 + 4)
-print("Product is", 1.5 * 12)
-
-print("Total is", str(3 + 4))
-print("Product is", str(1.5 * 12))
-
-
-
-print("\n\nExample 2")
-# Float division is used if we need
-# the result to be an integer
-intDiv = 3 // 4 
-print("Integer division is", intDiv)
-
-remainder = 3 % 4
-print("Remainder is", remainder)
-
-decDiv = 3 / 4.0
-print  ( "Decimal division is", decDiv )
-decDiv = 3 / 4
-print  ( "Decimal division is", decDiv )
-
+print(str(x) + " mod 2 is " + str(x % 2))
+print(str(y) + " mod 2 is " + str(y % 2))
+print(str(z) + " mod 2 is " + str(z % 2))

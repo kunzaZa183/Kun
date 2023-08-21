@@ -71,5 +71,9 @@
         "rope": "cpp"
     },
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.default.compilerPath": "C:\\Program Files\\CodeBlocks\\MinGW"
+    "C_Cpp.default.compilerPath": "C:\\Program Files\\CodeBlocks\\MinGW",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
