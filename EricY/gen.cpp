@@ -7,22 +7,21 @@ int main()
   freopen("input.txt", "w", stdout);
   int n = 4, m = 3;
   cout << n + 1 << ' ' << m << '\n';
-  vector<int> vi;
   vector<int> allnumbers;
   for (int i = 0; i < n * m; i++)
     allnumbers.push_back(i / m + 1);
   vector<vector<int>> vvi(n + 1);
-  n *= m;
-  for (int i = 0; i < vvi.size(); i++)
+  srand(time(NULL));
+  shuffle(allnumbers.begin(), allnumbers.end(), default_random_engine(rand()));
+  vector<int> vi;
+  for (int i = 0; i <= n; i++)
+    vi.push_back(i);
+  for (auto a : allnumbers)
   {
-    int some = rand() % min(n, m+1);
-    for (int j = 0; j < some; j++)
-    {
-      int x = rand() % allnumbers.size();
-      vvi[i].push_back(allnumbers[x]);
-      allnumbers.erase(allnumbers.begin() + x);
-    }
-    n -= some;
+    int x = rand() % vi.size();
+    vvi[vi[x]].push_back(a);
+    if (vvi[vi[x]].size() == m)
+      vi.erase(vi.begin() + x);
   }
   for (auto &a : vvi)
   {
