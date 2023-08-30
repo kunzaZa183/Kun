@@ -1,5 +1,6 @@
 import pygame
 import sys
+from math import pi
 
 
 pygame.init()
@@ -9,18 +10,26 @@ screen = pygame.display.set_mode((640,480))
 white = (255,255,255)
 screen.fill(white)
 
-# make a few colors
-black = (0, 0, 0)
-blue = (0, 0, 255)
-red = (255, 0, 0)
-green = (0, 128, 0)
+#draw an 8 pane window
 
-pygame.draw.rect(screen, green, (30,30,50,50),4)
+green = (0, 255, 0)
+
+def rect(coordx, coordy, color):
+    pygame.draw.rect(screen, color, (coordx, coordy, 50, 50), 5)
+    
+for i in range(1, 5):
+    for j in range(1, 3):
+      rect((j - 1) * 45 + 50, (i - 1) * 45 + 70, green)
+
+#use different colors
+
+red = (255, 0, 0)
+
+# update the screen
 pygame.display.update()
 
 while (True):
     for event in pygame.event.get() :
          if ( event.type == pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE)):
-              pygame.quit(); 
+              pygame.quit() 
               sys.exit()
-            
