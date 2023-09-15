@@ -6,8 +6,8 @@ import pygame.locals
 # draw the grass and rocks
 def draw(window:pygame.Surface):
     # Load grass.gif and rock.gif into variables
-    grass = pygame.image.load("grass.gif")
-    rock = pygame.image.load("rock.gif")
+    grass = pygame.image.load("grass_230913_proj_Kun.gif")
+    rock = pygame.image.load("rock_230913_proj_Kun.gif")
 
     # Create variables to keep track of where to
     # draw the grass
