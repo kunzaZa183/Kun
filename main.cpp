@@ -1,37 +1,31 @@
 #include <bits/stdc++.h>
 using namespace std;
+#define LSone(x) x & (-x)
+#define int long long
 struct query
 {
   int l, r, val;
 };
-const int BIGM = 600003;
-int seg[BIGM];
+int fenwick[300002];
 
-void update(int x, long long val){
-	while(x<=m){
-		seg[x]+=val;
-		//[x]=min(tree[x],maxi);
-		x+=(x&-x);
-	}
+void update(int curin, int val)
+{
+  while (curin < 300002)
+  {
+    fenwick[curin] += val;
+    curin += LSone(curin);
+  }
 }
-long long read(int x){
-	long long s=0;
-	while(x>0){
-		s+=tree[x];
-		//s=min(tree[x],maxi);
-		x-=(x&-x);
-	}
-	return s;
-}
- 
-void apply(int x){
-	if(ql[x]<=qr[x])
-		update(ql[x],qa[x]),update(qr[x]+1,-qa[x]);
-	else{
-		update(1,qa[x]);
-		update(qr[x]+1,-qa[x]);
-		update(ql[x],qa[x]);
-	}
+
+unsigned long long qry(int curin)
+{
+  unsigned long long res = 0;
+  while (curin > 0)
+  {
+    res += fenwick[curin];
+    curin -= LSone(curin);
+  }
+  return res;
 }
 
 signed main()
@@ -77,29 +71,36 @@ signed main()
       break;
     sort(vpii.begin(), vpii.end());
 
-    memset(seg, 0, sizeof seg);
+    memset(fenwick, 0, sizeof fenwick);
     int in = 0;
     for (int i = 0; i < qs; i++)
     {
       if (vq[i].l <= vq[i].r)
-        update(vq[i].l + 1, vq[i].r + 1, vq[i].val, m);
+      {
+        update(vq[i].l + 1, vq[i].val);
+        update(vq[i].r + 2, -vq[i].val);
+      }
       else
       {
-        update(vq[i].l + 1, m, vq[i].val, m);
-        update(1, vq[i].r + 1, vq[i].val, m);
+        update(vq[i].l + 1, vq[i].val);
+        update(1, vq[i].val);
+        update(vq[i].r + 2, -vq[i].val);
       }
       while (vpii[in].first == i + 1)
       {
         unsigned long long total = 0;
         for (auto a : owns[vpii[in].second])
-          total += qry(a + 1, m);
-        if (total >= should[vpii[in].second])
         {
-          bsr[vpii[in].second] = vpii[in].first;
-          works[vpii[in].second] = 1;
+          total += qry(a + 1);
+          if (total >= should[vpii[in].second])
+          {
+            bsr[vpii[in].second] = vpii[in].first;
+            works[vpii[in].second] = 1;
+            goto B;
+          }
         }
-        else
-          bsl[vpii[in].second] = vpii[in].first + 1;
+        bsl[vpii[in].second] = vpii[in].first + 1;
+      B:
         in++;
         if (in == vpii.size())
           goto A;
