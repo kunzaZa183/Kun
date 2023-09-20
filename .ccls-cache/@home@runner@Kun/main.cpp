@@ -4,7 +4,6 @@ using namespace std;
 const int arrsiz = 200000;
 
 int seg[arrsiz * 4];
-
 pair<int, int> lazy[arrsiz * 4];
 int arr[arrsiz];
 
