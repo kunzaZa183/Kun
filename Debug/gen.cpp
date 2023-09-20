@@ -6,6 +6,11 @@ int main()
   cin.tie(0);
   freopen("input.txt", "w", stdout);
   srand(time(NULL));
-  int n = 5, a = rand() % 10, b = rand() % 10, c = rand() % 10, x = rand() % 50;
-  cout << n << ' ' << a << ' ' << b << ' ' << c << " " << x << "\n";
+  int n = 5, q = 5;
+  cout << n << ' ' << q << "\n";
+  for (int i = 0; i < n; i++)
+    cout << rand() % 50 << ' ';
+  cout << "\n";
+  while (q--)
+    cout << rand() % 2 + 1 << " " << rand() % n + 1 << ' ' << rand() % n + 1 << '\n';
 }

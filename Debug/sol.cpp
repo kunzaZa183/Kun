@@ -1,70 +1,95 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
+const int arrsiz = 6;
+
+int seg[arrsiz * 4];
+pair<int, int> lazy[arrsiz * 4];
+int arr[arrsiz];
+
+void build(int curin, int curl, int curr)
+{
+  if (curl == curr)
+  {
+    seg[curin] = arr[curl];
+    return;
+  }
+  build(curin * 2 + 1, curl, (curl + curr) / 2), build(curin * 2 + 2, (curl + curr) / 2 + 1, curr);
+  seg[curin] = seg[curin * 2 + 1] + seg[curin * 2 + 2];
+}
+
+void lazyv(int curin, int curl, int curr)
+{
+  if (lazy[curin] != make_pair(0LL, 0LL))
+  {
+    seg[curin] += (lazy[curin].first + lazy[curin].second) * (curr - curl + 1) / 2;
+    if (curl == curr)
+    {
+      lazy[curin] = {0LL, 0LL};
+      return;
+    }
+    int mid = (curl + curr) / 2;
+    int diff = (lazy[curin].second - lazy[curin].first) / (curr - curl);
+    if (curin * 2 + 1 < 4 * arrsiz)
+    {
+      lazy[curin * 2 + 1].first += lazy[curin].first;
+      lazy[curin * 2 + 1].second += (mid - curl) * diff + lazy[curin].first;
+    }
+    if (curin * 2 + 2 < 4 * arrsiz)
+    {
+      lazy[curin * 2 + 2].first += (mid - curl + 1) * diff + lazy[curin].first;
+      lazy[curin * 2 + 2].second += lazy[curin].second;
+    }
+    lazy[curin] = {0LL, 0LL};
+  }
+}
+
+void update(int curin, int curl, int curr, int ql, int qr)
+{
+  lazyv(curin, curl, curr);
+  if (ql > curr || qr < curl)
+    return;
+  if (ql <= curl && curr <= qr)
+  {
+    lazy[curin] = {curl - ql + 1, curr - ql + 1};
+    lazyv(curin, curl, curr);
+    return;
+  }
+  update(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr);
+  update(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr);
+  seg[curin] = seg[curin * 2 + 1] + seg[curin * 2 + 2];
+}
+
+int query(int curin, int curl, int curr, int ql, int qr)
+{
+  lazyv(curin, curl, curr);
+  if (ql > curr || qr < curl)
+    return 0;
+  if (ql <= curl && curr <= qr)
+    return seg[curin];
+  return query(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr) + query(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr);
+}
+
 signed main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
-  
   freopen("input.txt", "r", stdin);
   freopen("output.txt", "w", stdout);
-  int n, a, b, c, x;
-  cin >> n >> a >> b >> c >> x;
-  if (b > c)
-    swap(b, c);
-  int ways = 0;
-  for (int i = 1; i <= n; i++)
+  int n, q;
+  cin >> n >> q;
+  for (int i = 0; i < n; i++)
+    cin >> arr[i];
+  build(0, 0, n - 1);
+  for (int i = 0; i < 4 * arrsiz; i++)
+    lazy[i] = {0LL, 0LL};
+  while (q--)
   {
-    int cur = x - i * a;
-    int tmpb = b, tmpc = c;
-    int gcdi = gcd(tmpb, tmpc);
-    if (cur % gcdi != 0)
-      continue;
-    cur /= gcdi;
-    tmpb /= gcdi, tmpc /= gcdi;
-    int ansb, ansc;
-    if (tmpb == 1)
-    {
-      ansb = 1;
-      ansc = 0;
-    }
-    else
-    {
-      vector<pair<int, int>> vpii;
-      vpii.emplace_back(tmpc, tmpb);
-      while (vpii.back().second != 1)
-        vpii.emplace_back(vpii.back().second, vpii.back().first % vpii.back().second);
-      vpii.pop_back();
-      ansb = 1;
-      ansc = -(vpii.back().first - 1) / vpii.back().second;
-      for (int j = vpii.size() - 2; j >= 0; j--)
-      {
-        ansb = ansc;
-        ansc = (1 - ansb * vpii[j].first) / vpii[j].second;
-      }
-      swap(ansb, ansc);
-    }
-    int oldcur = cur;
-    int down = cur / tmpb;
-    cur %= tmpb;
-    ansb *= cur, ansc *= cur;
-    int tmp = 0;
-    if (ansb < 0)
-      tmp = (-ansb) / tmpc + 1;
-    ansb += tmp * tmpc + down;
-    ansc -= tmp * tmpb;
-    int oldb = ansb;
-    ansb %= tmpc;
-    ansc += (oldb - ansb) / tmpc * tmpb;
-    if (ansb == 0)
-    {
-      ansb += tmpc;
-      ansc -= tmpb;
-    }
-    if (n >= ansc && ansc >= 1 && n >= ansb && ansb >= 1)
-    {
-      ways += max(min((ansc - 1) / tmpb + 1, (n - ansb) / tmpc + 1), 0LL);
-    }
+    int type, a, b;
+    cin >> type >> a >> b;
+    if (type == 1)
+      update(0, 0, n - 1, a - 1, b - 1);
+    else if (type == 2)
+      cout << query(0, 0, n - 1, a - 1, b - 1) << '\n';
   }
-  cout << ways << "\n";
 }
