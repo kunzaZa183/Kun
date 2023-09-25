@@ -1,29 +1,37 @@
+//codeforces D
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-signed main()
+const int maxn = 101;
+int par[maxn]={};
+bool three = 0;
+int colofpar[maxn] = {};
+int rb=0;
+void dfs(int cur)
 {
-  ios::sync_with_stdio(0);
-  cin.tie(0);
-  int n, q;
-  cin >> n >> q;
-  vector<int> vi(n);
-  for (auto &a : vi)
-    cin >> a;
-  while (q--)
-  {
-    int type, a, b;
-    cin >> type >> a >> b;
-    a--, b--;
-    if (type == 1)
-      for (int i = a; i <= b; i++)
-        vi[i] += i - a + 1;
-    else if (type == 2)
+    if()
+    if(colofpar[cur] == 0)
     {
-      int sum = 0;
-      for (int i = a; i <= b; i++)
-        sum += vi[i];
-      cout << sum << '\n';
+        rb = 1;
+        colofpar[0] = 1;
     }
-  }
+}
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    vector<int> adjlist[maxn];
+    for (int i = 2; i <= n; i++)
+    {
+        cin >> par[i];
+        adjlist[par[i]].push_back(i), adjlist[i].push_back(par[i]);
+    }
+    for(int i=1;i<=n;i++)
+        if(adjlist[i].size()==2)
+            for(auto a:adjlist[i])
+                if(adjlist[a].size()==2)
+                    three = 1;
+    for(auto a:adjlist[1])
+        dfs(a);
 }

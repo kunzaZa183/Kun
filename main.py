@@ -1,3 +1,3 @@
 x = 'a'
-x = int(x)
+x = chr(ord(x) + 1)
 print(x)
