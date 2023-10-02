@@ -1,0 +1,12 @@
+nums = []
+nums.append(34)
+nums.append(99)
+nums.append(21)
+nums.append(7)
+nums.append(3)		
+nums.append(11)
+print(nums)
+nums.append(10)
+nums.append(2)
+nums.append(5)
+print(nums)
