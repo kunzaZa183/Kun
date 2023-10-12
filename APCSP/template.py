@@ -1,3 +1,3 @@
 while True:
     a = input()
-    print("pair(\"{}\")".format(a))
+    print("sum({})".format(a))

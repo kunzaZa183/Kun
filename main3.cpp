@@ -1,37 +1,18 @@
+#include "testlib.h"
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 5001;
-int dp[maxn], freq[maxn];
-int main()
+
+bool checkrange(int num)
 {
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    int tests;
-    cin >> tests;
-    while (tests--)
-    {
-        int n;
-        cin >> n;
-        memset(freq, 0, sizeof freq);
-        for (int i = 0; i < n; i++)
-        {
-            int x;
-            cin >> x;
-            if (x < maxn)
-                freq[x]++;
-        }
-        int mex;
-        for (int i = 0; i < maxn; i++)
-            if (freq[i] == 0)
-            {
-                mex = i;
-                break;
-            }
-        fill(dp, dp + maxn, INT_MAX);
-        dp[mex] = 0;
-        for (int i = mex; i >= 0; i--)
-            for (int j = 0; j < i; j++)
-                dp[j] = min(dp[j], dp[i] + (freq[j] - 1) * i + j);
-        cout << dp[0] << "\n";
-    }
+    ensure(num >= 0 && num <= 20);
+}
+
+int main(int argc, char *argv[])
+{
+    registerGen(argc, argv);
+
+    int minn = argv[0], maxn = argv[1], minm = argv[2], maxm = argv[3];
+    checkrange(minn), checkrange(maxn), checkrange(minm), checkrange(maxm);
+    /* Single random number between 1 and 1000000 inclusive. */
+    cout << rnd.next(minn, maxn) << ' ' << rnd.next(minm, maxm) << endl;
 }
