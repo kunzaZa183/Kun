@@ -1,8 +1,11 @@
-//atcoder
+// atcoder
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
-const int MOD = 998244353;
+const int MOD = 998244353, nums = 17;
+
+int allways[(1 << nums)] = {}, connected[(1 << nums)] = {};
+int fact[(1 << nums)];
 
 int logpow(int a, int b)
 {
@@ -16,16 +19,15 @@ int logpow(int a, int b)
   return x * x % MOD * a % MOD;
 }
 
-int main()
+signed main()
 {
   ios::sync_with_stdio(0);
   cin.tie(0);
   int n, m;
   cin >> n >> m;
-  vector<int> fact(1, 1);
-  for (int i = 1; i <= m; i++)
-    fact.push_back(fact.back() * i % MOD);
-  const int nums = 17;
+  fact[0] = 1;
+  for (int i = 1; i <= (1 << nums); i++)
+    fact[i] = fact[i - 1] * i % MOD;
   int arr[nums] = {}, arr2[nums] = {};
   for (int i = 0; i < m; i++)
   {
@@ -39,8 +41,8 @@ int main()
     cin >> x;
     arr2[x - 1]++;
   }
-  int ways=0;
-  for (int i = 0; i < (1 << n); i++)
+  int ways = 0;
+  for (int i = 1; i < (1 << n); i++)
   {
     vector<int> all;
     for (int j = 0; j < n; j++)
@@ -51,8 +53,17 @@ int main()
       sum += arr[a], sum2 += arr2[a];
     if (sum == sum2)
     {
-      ways = ways + 
-      
+      allways[i] = fact[sum];
+      connected[i] = allways[i];
+      for (int j = i - 1; j >= 0; j--)
+      {
+        j &= i;
+        if (((1 << all.back()) & j) == 0)
+          break;
+        connected[i] = (connected[i] - connected[j] * allways[i ^ j] % MOD + MOD) % MOD;
+      }
+      ways = (ways + connected[i] * fact[m - sum] % MOD) % MOD;
     }
   }
+  cout << ways * logpow(fact[m], MOD - 2) % MOD << '\n';
 }

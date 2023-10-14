@@ -1,18 +1,15 @@
-#include "testlib.h"
-#include <bits/stdc++.h>
-using namespace std;
-
-bool checkrange(int num)
-{
-    ensure(num >= 0 && num <= 20);
-}
-
-int main(int argc, char *argv[])
-{
-    registerGen(argc, argv);
-
-    int minn = argv[0], maxn = argv[1], minm = argv[2], maxm = argv[3];
-    checkrange(minn), checkrange(maxn), checkrange(minm), checkrange(maxm);
-    /* Single random number between 1 and 1000000 inclusive. */
-    cout << rnd.next(minn, maxn) << ' ' << rnd.next(minm, maxm) << endl;
+#include<stdio.h>
+#include<math.h>
+typedef long long ll;
+ 
+int n,i,j,k;
+int main(){
+    scanf("%d",&n);
+    for(i=0;i<2*n-1;i++){
+        for(j=0;j<2*n-1;j++){
+            if(j==0 || j==2*n-2 || i==j) printf("#");
+            else printf(" ");
+        }
+        printf("\n");
+    }
 }
