@@ -14,18 +14,22 @@ vector<int> max_dist(vector<vector<int>> Coins)
     vector<int> Ans(Coins.size(), n);
     for (int i = 0; i < Coins.size(); i++)
     {
-        int fail;
         int curin = Coins[i][0];
         while (curin < n)
         {
             if (Coins[i][2] < rail[curin])
                 Coins[i][1]--;
-            if (Coins[i][0] == -1)
+            if (Coins[i][1] == -1)
                 goto A;
             curin++;
         }
         continue;
     A:
+        if (tape == 0)
+        {
+            Ans[i] = curin;
+            continue;
+        }
         deque<int> num;
         int buffer = 0, maxbuff = 0;
         for (int j = Coins[i][0]; j < Coins[i][0] + tape && j < n; j++)
@@ -56,7 +60,7 @@ vector<int> max_dist(vector<vector<int>> Coins)
         {
             if (Coins[i][2] < rail[curin])
                 Coins[i][1]--;
-            if (Coins[i][0] <= -1)
+            if (Coins[i][1] <= -1)
                 goto B;
             curin++;
         }
@@ -67,10 +71,11 @@ vector<int> max_dist(vector<vector<int>> Coins)
     return Ans;
 }
 
-
 int main()
 {
     int N, Q, L;
+    freopen("in.txt", "r", stdin);
+    freopen("correct.txt", "w", stdout);
     scanf("%d %d %d", &N, &Q, &L);
     vector<int> Rail(N);
     for (int i = 0; i < N; i++)
