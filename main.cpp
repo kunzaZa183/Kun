@@ -1,152 +1,68 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 100;
-int arrpar[maxn], color[maxn], arrhead[maxn], arrdepth[maxn], mod[maxn];
-vector<int> adjlist[maxn];
-void init(int cur, int head, int depth)
+#define int long long
+int arr[500000];
+int seg[2000000];
+void bulidv(int in, int l, int r)
 {
-    arrhead[cur] = head;
-    arrdepth[cur] = depth;
-    for (auto a : adjlist[cur])
-        if (a != arrpar[cur])
-            init(a, head, depth + 1);
-}
-void col3(int cur)
-{
-    for (auto a : adjlist[cur])
-        if (a != arrpar[cur])
-        {
-            if (color[cur] == 1)
-                color[a] = 2;
-            else if (color[cur] == 2)
-                color[a] = 3;
-            else if (color[cur] == 3)
-                color[a] = 1;
-            col3(a);
-        }
-}
-void col2(int cur)
-{
-    for (auto a : adjlist[cur])
-        if (a != arrpar[cur])
-        {
-            if (color[cur] == 1)
-                color[a] = 2;
-            else if (color[cur] == 2)
-                color[a] = 1;
-            col2(a);
-        }
-}
-int main()
-{
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    int n;
-    cin >> n;
-    arrpar[0] = 0;
-    for (int i = 1; i < n; i++)
+    if (l == r)
     {
-        cin >> arrpar[i];
-        arrpar[i]--;
-        adjlist[i].push_back(arrpar[i]), adjlist[arrpar[i]].push_back(i);
+        seg[in] = arr[l];
+        return;
     }
-    int tmp;
-    for (int i = 1; i < n; i++)
-        if (adjlist[i].size() != 1)
-            goto A;
-    cout << 1 << endl;
-    for (int i = 1; i < n; i++)
-        cout << 1 << " ";
-    cout << endl;
-    while (cin >> tmp)
+    int mid = (l + r) / 2;
+    bulidv(in * 2, l, mid);
+    bulidv(in * 2 + 1, mid + 1, r);
+    seg[in] = seg[in * 2 + 1] + seg[in * 2];
+}
+void change(int in, int poschange, int val, int l, int r)
+{
+    if (poschange < l || poschange > r)
+        return;
+    if (l == r)
     {
-        if (tmp != 0)
-            return 0;
-        int x;
-        cin >> x;
-        cout << 1 << endl;
+        seg[in] += val;
+        return;
     }
-A:
-    for (int i = 1; i < n; i++)
-        mod[i] = -1;
-    for (auto a : adjlist[0])
-        init(a, a, 0);
-    bool three = 0;
-    for (int i = 1; i < n; i++)
-        if (adjlist[i].size() == 2)
-        {
-            if (mod[arrhead[i]] == -1)
-                mod[arrhead[i]] = arrdepth[i] % 2;
-            else if (mod[arrhead[i]] != arrdepth[i] % 2)
-                three = 1;
-        }
-    if (three)
+    int mid = (l + r) / 2;
+    change(in * 2, poschange, val, l, mid)
+    change(in * 2 + 1, poschange, val, mid + 1, r);
+    seg[in] = seg[in * 2] + seg[in * 2 + 1];
+    // cout << seg[in].first << ' ' << l << ' ' << r << '\n';
+}
+int query(int curin, int curl, int curr, int ql, int qr)
+{
+    if (ql > curr || qr < curl)
+        return 0;
+    if (ql <= curl && curr <= qr)
+        return seg[curin];
+    int mid = (curl + curr) / 2;
+    return query(curin * 2, curl, mid, ql, qr) + query(curin * 2 + 1, mid + 1, curr, ql, qr);
+}
+signed main()
+{
+    int n, q;
+    cin >> n >> q;
+    for (int i = 1; i <= n; i++)
+        cin >> arr[i];
+    bulidv(1, 1, n);
+    while (q--)
     {
-        cout << 3 << endl;
-        for (auto a : adjlist[0])
+        int type;
+        cin >> type;
+        if (type == 1)
         {
-            color[a] = 1;
-            col3(a);
+            int l, r;
+            cin >> l >> r;
+            l++;
+            cout << query(1, 1, n, l, r) << "\n";
         }
-        for (int i = 1; i < n; i++)
-            cout << color[i] << " ";
-        cout << endl;
-        int num;
-        while (cin >> num)
+        else if (type == 0)
         {
-            if (num != 0)
-                return 0;
-            int arr[3];
-            for (int i = 0; i < 3; i++)
-                cin >> arr[i];
-            int sum = 0;
-            for (int i = 0; i < 3; i++)
-                sum += arr[i];
-            if (sum == 1)
-            {
-                for (int i = 0; i < 3; i++)
-                    if (arr[i] == 1)
-                    {
-                        cout << i + 1 << endl;
-                        break;
-                    }
-            }
-            else if (arr[0] == 0)
-                cout << 2 << endl;
-            else if (arr[1] == 0)
-                cout << 3 << endl;
-            else if (arr[2] == 0)
-                cout << 1 << endl;
-        }
-    }
-    else
-    {
-        cout << 2 << endl;
-        for (auto a : adjlist[0])
-            if (mod[a] <= 0)
-            {
-                color[a] = 1;
-                col2(a);
-            }
-            else if (mod[a] == 1)
-            {
-                color[a] = 2;
-                col2(a);
-            }
-        for (int i = 1; i < n; i++)
-            cout << color[i] << " ";
-        cout << endl;
-        int num;
-        while (cin >> num)
-        {
-            if (num != 0)
-                return 0;
-            int r, b;
-            cin >> r >> b;
-            if (r == 1)
-                cout << 1 << endl;
-            else if (b == 1)
-                cout << 2 << endl;
+            int x, d;
+            cin >> x >> d;
+            x++;
+            change(1, x, d, 1, n);
         }
     }
 }
