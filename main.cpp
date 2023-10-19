@@ -1,68 +1,71 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-int arr[500000];
-int seg[2000000];
-void bulidv(int in, int l, int r)
+const int maxn = 2500, maxm = 2500, x = 0;
+int arr1[maxn] = {}, arr2[maxm] = {};
+int main()
 {
-    if (l == r)
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 0; i < n; i++)
+        cin >> arr1[i];
+    for (int i = 0; i < m; i++)
+        cin >> arr2[i];
+    vector<int> move1, move2;
+    for (int i = 0; i < n; i++)
     {
-        seg[in] = arr[l];
-        return;
+        int x = arr1[i], y = i + 1;
+        if (x == y)
+            continue;
+        int in1 = find(arr1, arr1 + n, x) - arr1, in2 = find(arr1, arr1 + n, y) - arr1;
+        if (in1 > in2)
+            swap(in1, in2);
+        int a = in1, b = in2 - in1 - 1, c = n - in2 - 1;
+        move1.push_back(a + 1);
+        move1.push_back(b + 1);
+        move1.push_back(c + 1);
+        swap(arr1[in1], arr1[in2]);
     }
-    int mid = (l + r) / 2;
-    bulidv(in * 2, l, mid);
-    bulidv(in * 2 + 1, mid + 1, r);
-    seg[in] = seg[in * 2 + 1] + seg[in * 2];
-}
-void change(int in, int poschange, int val, int l, int r)
-{
-    if (poschange < l || poschange > r)
-        return;
-    if (l == r)
+    for (int i = 0; i < m; i++)
     {
-        seg[in] += val;
-        return;
+        int x = arr2[i], y = i + 1;
+        if (x == y)
+            continue;
+        int in1 = find(arr2, arr2 + m, x) - arr2, in2 = find(arr2, arr2 + m, y) - arr2;
+        if (in1 > in2)
+            swap(in1, in2);
+        int a = in1, b = in2 - in1 - 1, c = m - in2 - 1;
+        move2.push_back(a + 1);
+        move2.push_back(b + 1);
+        move2.push_back(c + 1);
+        swap(arr2[in1], arr2[in2]);
     }
-    int mid = (l + r) / 2;
-    change(in * 2, poschange, val, l, mid)
-    change(in * 2 + 1, poschange, val, mid + 1, r);
-    seg[in] = seg[in * 2] + seg[in * 2 + 1];
-    // cout << seg[in].first << ' ' << l << ' ' << r << '\n';
-}
-int query(int curin, int curl, int curr, int ql, int qr)
-{
-    if (ql > curr || qr < curl)
-        return 0;
-    if (ql <= curl && curr <= qr)
-        return seg[curin];
-    int mid = (curl + curr) / 2;
-    return query(curin * 2, curl, mid, ql, qr) + query(curin * 2 + 1, mid + 1, curr, ql, qr);
-}
-signed main()
-{
-    int n, q;
-    cin >> n >> q;
-    for (int i = 1; i <= n; i++)
-        cin >> arr[i];
-    bulidv(1, 1, n);
-    while (q--)
+    if (move1.size() % 2 != move2.size() % 2)
     {
-        int type;
-        cin >> type;
-        if (type == 1)
+        if (n % 2 == 1)
+            for (int i = 0; i < n; i++)
+                move1.push_back(1);
+        else if (m % 2 == 1)
+            for (int i = 0; i < m; i++)
+                move2.push_back(1);
+        else
         {
-            int l, r;
-            cin >> l >> r;
-            l++;
-            cout << query(1, 1, n, l, r) << "\n";
-        }
-        else if (type == 0)
-        {
-            int x, d;
-            cin >> x >> d;
-            x++;
-            change(1, x, d, 1, n);
+            cout << "-1\n";
+            return 0;
         }
     }
+    while (move1.size() < move2.size())
+    {
+        move1.push_back(1);
+        move1.push_back(n);
+    }
+    while (move1.size() > move2.size())
+    {
+        move2.push_back(1);
+        move2.push_back(m);
+    }
+    cout << move1.size() << "\n";
+    for (int i = 0; i < move1.size(); i++)
+        cout << move1[i] << " " << move2[i] << "\n";
 }
