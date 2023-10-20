@@ -40,7 +40,7 @@ void buildmin(int curin, int curl, int curr)
         minseg[curin] = {0, curl};
         return;
     }
-    buildmin(curin << 1 | 1, curl, (curl + curr) / 2), buildmin((curin << 1) + 2, (curl + curr) / 2 + 1, curr);
+    buildmin(curin << 1 | 1, curl, (curl + curr) >> 1), buildmin((curin << 1) + 2, ((curl + curr) >> 1) + 1, curr);
     minseg[curin] = min(minseg[curin << 1 | 1], minseg[(curin << 1) + 2]);
 }
 void lazymin(int curin)
@@ -63,7 +63,7 @@ void updatemin(int curin, int curl, int curr, int ql, int qr, int val)
         lazymin(curin);
         return;
     }
-    updatemin(curin << 1 | 1, curl, (curl + curr) / 2, ql, qr, val), updatemin((curin << 1) + 2, (curl + curr) / 2 + 1, curr, ql, qr, val);
+    updatemin(curin << 1 | 1, curl, (curl + curr) >> 1, ql, qr, val), updatemin((curin << 1) + 2, ((curl + curr) >> 1) + 1, curr, ql, qr, val);
     minseg[curin] = min(minseg[curin << 1 | 1], minseg[(curin << 1) + 2]);
 }
 pair<int, int> querymin(int curin, int curl, int curr, int ql, int qr)
@@ -73,7 +73,7 @@ pair<int, int> querymin(int curin, int curl, int curr, int ql, int qr)
         return {INT_MAX, INT_MAX};
     if (ql <= curl && curr <= qr)
         return minseg[curin];
-    return min(querymin(curin << 1 | 1, curl, (curl + curr) / 2, ql, qr), querymin((curin << 1) + 2, (curl + curr) / 2 + 1, curr, ql, qr));
+    return min(querymin(curin << 1 | 1, curl, (curl + curr) >> 1, ql, qr), querymin((curin << 1) + 2, ((curl + curr) >> 1) + 1, curr, ql, qr));
 }
 
 pair<int, int> biggestarr[maxq] = {}; // cur biggest
@@ -104,7 +104,7 @@ void updatebig(int curin, int curl, int curr, int ql, int qr, int val)
         lazybiggest(curin, curl, curr);
         return;
     }
-    updatebig(curin << 1 | 1, curl, (curl + curr) / 2, ql, qr, val), updatebig((curin << 1) + 2, (curl + curr) / 2 + 1, curr, ql, qr, val);
+    updatebig(curin << 1 | 1, curl, (curl + curr) >> 1, ql, qr, val), updatebig((curin << 1) + 2, ((curl + curr) >> 1) + 1, curr, ql, qr, val);
 }
 void querybig(int curin, int curl, int curr, int in)
 {
@@ -113,7 +113,7 @@ void querybig(int curin, int curl, int curr, int in)
         return;
     if (curl == curr)
         return;
-    querybig(curin << 1 | 1, curl, (curl + curr) / 2, in), querybig((curin << 1) + 2, (curl + curr) / 2 + 1, curr, in);
+    querybig(curin << 1 | 1, curl, (curl + curr) >> 1, in), querybig((curin << 1) + 2, ((curl + curr) >> 1) + 1, curr, in);
 }
 
 bool taped[maxq] = {}; // segid
