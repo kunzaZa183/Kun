@@ -1,31 +1,33 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-signed main()
+int main()
 {
-  ios::sync_with_stdio(0);
-  cin.tie(0);
-  freopen("input.txt", "r", stdin);
-  freopen("correctoutput.txt", "w", stdout);
-  int n, q;
-  cin >> n >> q;
-  vector<int> vi(n);
-  for (auto &a : vi)
-    cin >> a;
-  while (q--)
-  {
-    int type, a, b;
-    cin >> type >> a >> b;
-    a--, b--;
-    if (type == 1)
-      for (int i = a; i <= b; i++)
-        vi[i] += i - a + 1;
-    else if (type == 2)
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    freopen("input.txt", "r", stdin);
+    freopen("correctoutput.txt", "w", stdout);
+    int len;
+    cin >> len;
+    string s;
+    cin >> s;
+    int sum = 0;
+    for (int i = 1; i <= len; i++)
     {
-      int sum = 0;
-      for (int i = a; i <= b; i++)
-        sum += vi[i];
-      cout << sum << '\n';
+        for (int j = 0; j <= len - i; j++)
+        {
+            string tmp = s.substr(j, i);
+            int maxt = 0;
+            int curt = 0;
+            for (auto a : tmp)
+                if (a == 'T')
+                {
+                    curt++;
+                    maxt = max(maxt, curt);
+                }
+                else if (a == 'F')
+                    curt = 0;
+            sum += maxt;
+        }
     }
-  }
+    cout << sum << '\n';
 }

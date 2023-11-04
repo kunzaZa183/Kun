@@ -1,95 +1,126 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
-const int arrsiz = 6;
-
-int seg[arrsiz * 4];
-pair<int, int> lazy[arrsiz * 4];
-int arr[arrsiz];
-
-void build(int curin, int curl, int curr)
+struct type
 {
-  if (curl == curr)
-  {
-    seg[curin] = arr[curl];
-    return;
-  }
-  build(curin * 2 + 1, curl, (curl + curr) / 2), build(curin * 2 + 2, (curl + curr) / 2 + 1, curr);
-  seg[curin] = seg[curin * 2 + 1] + seg[curin * 2 + 2];
-}
-
-void lazyv(int curin, int curl, int curr)
-{
-  if (lazy[curin] != make_pair(0LL, 0LL))
-  {
-    seg[curin] += (lazy[curin].first + lazy[curin].second) * (curr - curl + 1) / 2;
-    if (curl == curr)
+    bool legit;
+    int start;
+    int len;
+    type(const bool a, const int c, const int b)
     {
-      lazy[curin] = {0LL, 0LL};
-      return;
+        legit = a, start = c, len = b;
     }
-    int mid = (curl + curr) / 2;
-    int diff = (lazy[curin].second - lazy[curin].first) / (curr - curl);
-    if (curin * 2 + 1 < 4 * arrsiz)
-    {
-      lazy[curin * 2 + 1].first += lazy[curin].first;
-      lazy[curin * 2 + 1].second += (mid - curl) * diff + lazy[curin].first;
-    }
-    if (curin * 2 + 2 < 4 * arrsiz)
-    {
-      lazy[curin * 2 + 2].first += (mid - curl + 1) * diff + lazy[curin].first;
-      lazy[curin * 2 + 2].second += lazy[curin].second;
-    }
-    lazy[curin] = {0LL, 0LL};
-  }
-}
-
-void update(int curin, int curl, int curr, int ql, int qr)
-{
-  lazyv(curin, curl, curr);
-  if (ql > curr || qr < curl)
-    return;
-  if (ql <= curl && curr <= qr)
-  {
-    lazy[curin] = {curl - ql + 1, curr - ql + 1};
-    lazyv(curin, curl, curr);
-    return;
-  }
-  update(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr);
-  update(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr);
-  seg[curin] = seg[curin * 2 + 1] + seg[curin * 2 + 2];
-}
-
-int query(int curin, int curl, int curr, int ql, int qr)
-{
-  lazyv(curin, curl, curr);
-  if (ql > curr || qr < curl)
-    return 0;
-  if (ql <= curl && curr <= qr)
-    return seg[curin];
-  return query(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr) + query(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr);
-}
-
+};
+string s;
+const int maxn = 100000;
+int maxr[maxn], maxl[maxn];
+vector<type> vt;
+map<int, vector<int>> available;  // size start index
+map<int, vector<int>> available2; // size index
 signed main()
 {
-  ios::sync_with_stdio(0);
-  cin.tie(0);
-  freopen("input.txt", "r", stdin);
-  freopen("output.txt", "w", stdout);
-  int n, q;
-  cin >> n >> q;
-  for (int i = 0; i < n; i++)
-    cin >> arr[i];
-  build(0, 0, n - 1);
-  for (int i = 0; i < 4 * arrsiz; i++)
-    lazy[i] = {0LL, 0LL};
-  while (q--)
-  {
-    int type, a, b;
-    cin >> type >> a >> b;
-    if (type == 1)
-      update(0, 0, n - 1, a - 1, b - 1);
-    else if (type == 2)
-      cout << query(0, 0, n - 1, a - 1, b - 1) << '\n';
-  }
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    int len;
+    cin >> len;
+    cin >> s;
+    for (int i = 0; i < s.size(); i++)
+        maxr[i] = len - 1, maxl[i] = 0;
+    vt.emplace_back(s[0] == 'T', 0, 1);
+    for (int i = 1; i < len; i++)
+        if (s[i] == 'T')
+        {
+            if (vt.back().legit)
+                vt.back().len++;
+            else if (!vt.back().legit)
+                vt.emplace_back(1, i, 1);
+        }
+        else if (s[i] == 'F')
+        {
+            if (vt.back().legit)
+                vt.emplace_back(0, i, 1);
+            else if (!vt.back().legit)
+                vt.back().len++;
+        }
+
+    long long ans = 0;
+    int forgot = 0;
+    for (auto a : vt)
+    {
+        if (a.legit)
+        {
+            while (!available.empty())
+            {
+                if (available.begin()->first < a.len)
+                    for (auto b : available.begin()->second)
+                        ans += (a.start - b + 1) * available.begin()->first;
+                else
+                    break;
+                available.erase(available.begin());
+            }
+            for (int i = 1; i < a.len; i++)
+                available[i].push_back(a.start + a.len - i);
+
+            while (!available2.empty())
+            {
+                if (available2.begin()->first < a.len)
+                    for (auto b : available2.begin()->second)
+                        maxr[b] = a.start + available2.begin()->first - 1;
+                else
+                    break;
+                available2.erase(available2.begin());
+            }
+            available2[a.len].push_back(forgot);
+        }
+        forgot++;
+    }
+
+    for (auto &a : available)
+        for (auto b : a.second)
+            ans += (len - (b + a.first - 1)) * a.first;
+
+    available.clear();
+    available2.clear();
+
+    for (int i = vt.size() - 1; i >= 0; i--)
+        if (vt[i].legit)
+        {
+            while (!available.empty())
+            {
+                if (available.begin()->first <= vt[i].len)
+                    for (auto a : available.begin()->second)
+						ans += (a - (vt[i].start + vt[i].len - available.begin()->first)) * available.begin()->first;
+                else
+                    break;
+                available.erase(available.begin());
+            }
+            for (int j = 1; j < vt[i].len; j++)
+                available[j].push_back(vt[i].start);
+
+            while (!available2.empty())
+            {
+                if (available2.begin()->first <= vt[i].len)
+                    for (auto b : available2.begin()->second)
+                        maxl[b] = vt[i].start + vt[i].len - available2.begin()->first + 1;
+                else
+                    break;
+                available2.erase(available2.begin());
+            }
+            available2[vt[i].len].push_back(i);
+        }
+
+    for (auto &a : available)
+        for (auto b : a.second)
+            ans += (b + 1) * a.first;
+
+    for (int i = 0; i < vt.size(); i++)
+        if (vt[i].legit)
+        {
+            ans += (vt[i].start - maxl[i] + 1) * (maxr[i] - (vt[i].start + vt[i].len - 1) + 1) * vt[i].len;
+            for (int j = 1; j <= vt[i].len - 2; j++)
+                ans += j * (vt[i].len - 2 - j + 1);
+        }
+    cout << ans << "\n";
 }
