@@ -1,34 +1,34 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 20;
-double arr[maxn][maxn] = {};
-double dp[1 << maxn] = {};
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    int n;
-    cin >> n;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < n; j++)
-        {
-            cin >> arr[i][j];
-            arr[i][j] /= 100;
-        }
-    vector<vector<int>> cur(n + 1);
-    for (int i = 0; i < (1 << n); i++)
+    int tests;
+    cin >> tests;
+    while (tests--)
     {
-        int ct = 0;
-        for (int j = 0; j < n; j++)
-            if (i & (1 << j))
-                ct++;
-        cur[ct].push_back(i);
+        string s;
+        cin >> s;
+        int num = 0, num2 = 0;
+        int stop = s.find(':');
+        for (int i = 0; i < stop; i++)
+            if (isdigit(s[i]))
+            {
+                num *= 10;
+                num += s[i] - '0';
+            }
+        for (int i = stop + 1; i < s.size(); i++)
+            if (isdigit(s[i]))
+            {
+                num2 *= 10;
+                num2 += s[i] - '0';
+            }
+        if (num >= num2)
+            cout << "SWERVE\n";
+        else if (num * 5 >= num2)
+            cout << "BRAKE\n";
+        else
+            cout << "SAFE\n";
     }
-    dp[0] = 1;
-    for (int i = 0; i < n; i++)
-        for (auto a : cur[i])
-            for (int k = 0; k < n; k++)
-                if (((1 << k) & a) == 0)
-                    dp[(1 << k) | a] = max(dp[(1 << k) | a], dp[a] * arr[i][k]);
-    cout << fixed << setprecision(12) << dp[(1 << n) - 1] * 100 << '\n';
 }
