@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 200000, maxm = 200000, maxk = 10, logm = 20, verysmall = -1000000;
+const int maxn = 200000, maxm = 200000, maxk = 10, logm = 20, verysmall = 0;
 int arrend[maxn + 1];
 vector<int> nums[maxn + 1];
 int n, k;
@@ -68,7 +68,7 @@ int main()
         {
             if (i >= nums[0].size())
                 dp[0][0][i] = 1;
-            for (int k = 1; k < logm; k++)
+             for (int k = 1; k < logm; k++)
                 dp[k][0][i] = dp[k - 1][0][i];
             for (int j = 1; j < n; j++)
             {
@@ -79,13 +79,18 @@ int main()
                     int bef = j - 1;
                     for (int in = 0; in < nums[j].size(); in++)
                     {
-                        while (in < nums[j].size() - 1)
-                            if ((nums[j][in] == nums[j][in + 1]) || bef < nums[j][in])
-                                in++;
-                            else
+                        if (in != 0)
+                        {
+                            while (in < nums[j].size())
+                                if ((nums[j][in] == nums[j][in - 1]) || bef < nums[j][in])
+                                    in++;
+                                else
+                                    break;
+                            if (in == nums[j].size())
                                 break;
+                        }
                         if (bef < nums[j][in])
-                            break;
+                            continue;
                         int maxlog = log2(bef - nums[j][in] + 1);
                         dp[0][j][i] = max(dp[0][j][i], 1 + max(dp[maxlog][nums[j][in] + (1 << maxlog) - 1][i - in], dp[maxlog][bef][i - in]));
                         bef = nums[j][in] - 1;
