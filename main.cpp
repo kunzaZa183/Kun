@@ -1,115 +1,61 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 200000, maxm = 200000, maxk = 10, logm = 20, verysmall = 0;
-int arrend[maxn + 1];
-vector<int> nums[maxn + 1];
-int n, k;
-int find_ans(int in)
+#define int long long
+const string sth = "ACGT";
+const int MOD = 1000000007, maxn = 100000;
+int dp[maxn][4][4][4] = {}; // cur, first of second to last, first last, last last
+int conv(char c)
 {
-    if (in >= n)
-        return in;
-    if (nums[in].size() <= k)
-        return in;
-    arrend[in] = find_ans(arrend[in]);
-    return arrend[in];
+    for (int i = 0; i < 4; i++)
+        if (sth[i] == c)
+            return i;
 }
-pair<int, int> alldays[maxm];
-int dp[logm][maxn][maxk + 1]; // logthingy, last index, left
-int main()
+signed main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    int tests;
-    cin >> tests;
-
-    while (tests--)
+    string s;
+    cin >> s;
+    if (s.front() == '?')
     {
-        int m;
-        cin >> n >> m >> k;
-        for (int i = 0; i < n; i++)
-        {
-            nums[i].clear();
-            arrend[i] = i + 1;
-        }
-
-        for (int i = 0; i < m; i++)
-        {
-            cin >> alldays[i].first >> alldays[i].second;
-            alldays[i].first--, alldays[i].second--;
-            int l = alldays[i].first, r = alldays[i].second;
-            while (l <= r)
-            {
-                nums[l].push_back(alldays[i].first);
-                l = find_ans(l + 1);
-            }
-        }
-
-        for (int i = 0; i < n; i++)
-            sort(nums[i].begin(), nums[i].end(), greater<int>());
-
-        for (int i = 0; i < logm; i++)
-            for (int j = 0; j < n; j++)
-                for (int k2 = 0; k2 <= k; k2++)
-                    dp[i][j][k2] = verysmall;
-
-        int ct = 0;
-        for (int i = 0; i < n; i++)
-            if (nums[i].empty())
-            {
-                ct++;
-                dp[0][i][0] = ct;
-            }
-
-        for (int i = 1; i < logm; i++)
-            for (int j = 0; j < n; j++)
-                dp[i][j][0] = max(dp[i - 1][j][0], dp[i - 1][max(0, j - (1 << (i - 1)))][0]);
-
-        for (int i = 1; i <= k; i++)
-        {
-            if (i >= nums[0].size())
-                dp[0][0][i] = 1;
-             for (int k = 1; k < logm; k++)
-                dp[k][0][i] = dp[k - 1][0][i];
-            for (int j = 1; j < n; j++)
-            {
-                if (nums[j].size() <= i)
-                {
-                    dp[0][j][i] = 1;
-
-                    int bef = j - 1;
-                    for (int in = 0; in < nums[j].size(); in++)
-                    {
-                        if (in != 0)
-                        {
-                            while (in < nums[j].size())
-                                if ((nums[j][in] == nums[j][in - 1]) || bef < nums[j][in])
-                                    in++;
-                                else
-                                    break;
-                            if (in == nums[j].size())
-                                break;
-                        }
-                        if (bef < nums[j][in])
-                            continue;
-                        int maxlog = log2(bef - nums[j][in] + 1);
-                        dp[0][j][i] = max(dp[0][j][i], 1 + max(dp[maxlog][nums[j][in] + (1 << maxlog) - 1][i - in], dp[maxlog][bef][i - in]));
-                        bef = nums[j][in] - 1;
-                    }
-                    if (bef != -1)
-                    {
-                        int maxlog = log2(bef + 1);
-                        dp[0][j][i] = max(dp[0][j][i], 1 + dp[logm - 1][bef][i - nums[j].size()]);
-                    }
-                }
-                for (int k = 1; k < logm; k++)
-                    dp[k][j][i] = max(dp[k - 1][j][i], dp[k - 1][max(0, j - (1 << (k - 1)))][i]);
-            }
-        }
-
-        int maxi = 0;
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j <= k; j++)
-                maxi = max(maxi, dp[logm - 1][i][j]);
-        cout << maxi << "\n";
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                dp[0][j][i][i] = 1;
     }
+    else
+        for (int i = 0; i < 4; i++)
+            dp[0][i][conv(s.front())][conv(s.front())] = 1;
+    for (int i = 0; i < s.size() - 1; i++)
+        if (s[i + 1] == '?')
+        {
+            for (int j = 0; j < 4; j++)
+                for (int k = 0; k < 4; k++)
+                    for (int l = 0; l < 4; l++)
+                    {
+                        if (l == j)
+                            for (int m = 0; m < 4; m++)
+                                dp[i + 1][k][m][m] = (dp[i + 1][k][m][m] + dp[i][j][k][l]) % MOD;
+                        for (int m = 0; m < 4; m++)
+                            if (m != k)
+                                dp[i + 1][j][k][m] = (dp[i + 1][j][k][m] + dp[i][j][k][l]) % MOD;
+                    }
+        }
+        else
+        {
+            for (int j = 0; j < 4; j++)
+                for (int k = 0; k < 4; k++)
+                    for (int l = 0; l < 4; l++)
+                    {
+                        int x = conv(s[i + 1]);
+                        if (l == j)
+                            dp[i + 1][k][x][x] = (dp[i + 1][k][x][x] + dp[i][j][k][l]) % MOD;
+                        if (x != l)
+                            dp[i + 1][j][k][x] = (dp[i + 1][j][k][x] + dp[i][j][k][l]) % MOD;
+                    }
+        }
+    int sum = 0;
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            sum = (sum + dp[s.size() - 1][i][j][i]) % MOD;
+    cout << sum << "\n";
 }

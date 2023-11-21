@@ -6,15 +6,9 @@ int main()
     cin.tie(0);
     freopen("input.txt", "w", stdout);
     srand(time(NULL));
-    int n = 100;
-    int trues = rand() % n;
-    int falses = n - trues;
-    string vi;
-    cout << n << "\n";
-    for (int i = 0; i < trues; i++)
-        vi.push_back('T');
-    for (int i = 0; i < falses; i++)
-        vi.push_back('F');
-    random_shuffle(vi.begin(), vi.end());
-    cout << vi << '\n';
+    int n = 6;
+    const string s = "ACGT?";
+    for (int i = 0; i < n; i++)
+        cout << s[rand() % 5];
+    cout << "\n";
 }
