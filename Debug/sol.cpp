@@ -38,7 +38,7 @@ signed main()
                             for (int m = 0; m < 4; m++)
                                 dp[i + 1][k][m][m] = (dp[i + 1][k][m][m] + dp[i][j][k][l]) % MOD;
                         for (int m = 0; m < 4; m++)
-                            if (m != k)
+                            if (m != l)
                                 dp[i + 1][j][k][m] = (dp[i + 1][j][k][m] + dp[i][j][k][l]) % MOD;
                     }
         }

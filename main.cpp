@@ -1,61 +1,65 @@
 #include <bits/stdc++.h>
+#include <set>
+#include <unordered_set>
 using namespace std;
-#define int long long
-const string sth = "ACGT";
-const int MOD = 1000000007, maxn = 100000;
-int dp[maxn][4][4][4] = {}; // cur, first of second to last, first last, last last
-int conv(char c)
+int arr[6], all[36], eachval[6], diff[6];
+bitset<36> add;
+multiset<int> msi;
+void solve()
 {
-    for (int i = 0; i < 4; i++)
-        if (sth[i] == c)
-            return i;
+    for (int i = 0; i < 36; i++)
+        cin >> all[i];
+    for (int i = 1; i < 6; i++)
+        arr[i] = i;
+    for (arr[2] = 2; arr[2] <= 12; arr[2]++)
+        for (arr[3] = arr[2] + 1; arr[3] <= 18; arr[3]++)
+            for (arr[4] = arr[3] + 1; arr[4] <= 24; arr[4]++)
+                for (arr[5] = arr[4] + 1; arr[5] <= 30; arr[5]++)
+                {
+                    msi.clear();
+                    int ct = 1;
+                    add.set();
+                    for (int i = 0; i < 6; i++)
+                        add[arr[i]] = 0;
+                    for (int i = 0; i < 36; i++)
+                        if (add[i])
+                            msi.insert(all[i]);
+                    eachval[0] = all[0];
+                    for (int i = 1; i < 6; i++)
+                        diff[i] = all[arr[i]] - all[arr[0]];
+                    while (!msi.empty())
+                    {
+                        eachval[ct] = *msi.begin();
+                        msi.erase(msi.begin());
+                        for (int i = 1; i < 6; i++)
+                        {
+                            auto it = msi.find(eachval[ct] + diff[i]);
+                            if (it != msi.end())
+                                msi.erase(it);
+                            else
+                                goto A;
+                        }
+                        ct++;
+                    }
+                    cout << 0;
+                    for (int i = 1; i < 6; i++)
+                        cout << " " << all[arr[i]] - all[arr[0]];
+                    cout << "\n";
+                    cout << all[0];
+                    for (int i = 1; i < 6; i++)
+                        cout << ' ' << eachval[i] - eachval[0] + all[0];
+                    cout << "\n";
+                    return;
+                A:;
+                }
+    cout << "IMPOSSIBLE\n";
 }
-signed main()
+int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    string s;
-    cin >> s;
-    if (s.front() == '?')
-    {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
-                dp[0][j][i][i] = 1;
-    }
-    else
-        for (int i = 0; i < 4; i++)
-            dp[0][i][conv(s.front())][conv(s.front())] = 1;
-    for (int i = 0; i < s.size() - 1; i++)
-        if (s[i + 1] == '?')
-        {
-            for (int j = 0; j < 4; j++)
-                for (int k = 0; k < 4; k++)
-                    for (int l = 0; l < 4; l++)
-                    {
-                        if (l == j)
-                            for (int m = 0; m < 4; m++)
-                                dp[i + 1][k][m][m] = (dp[i + 1][k][m][m] + dp[i][j][k][l]) % MOD;
-                        for (int m = 0; m < 4; m++)
-                            if (m != k)
-                                dp[i + 1][j][k][m] = (dp[i + 1][j][k][m] + dp[i][j][k][l]) % MOD;
-                    }
-        }
-        else
-        {
-            for (int j = 0; j < 4; j++)
-                for (int k = 0; k < 4; k++)
-                    for (int l = 0; l < 4; l++)
-                    {
-                        int x = conv(s[i + 1]);
-                        if (l == j)
-                            dp[i + 1][k][x][x] = (dp[i + 1][k][x][x] + dp[i][j][k][l]) % MOD;
-                        if (x != l)
-                            dp[i + 1][j][k][x] = (dp[i + 1][j][k][x] + dp[i][j][k][l]) % MOD;
-                    }
-        }
-    int sum = 0;
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            sum = (sum + dp[s.size() - 1][i][j][i]) % MOD;
-    cout << sum << "\n";
+    int tests;
+    cin >> tests;
+    while (tests--)
+        solve();
 }
