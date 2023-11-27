@@ -1,65 +1,112 @@
 #include <bits/stdc++.h>
-#include <set>
-#include <unordered_set>
 using namespace std;
-int arr[6], all[36], eachval[6], diff[6];
-bitset<36> add;
-multiset<int> msi;
-void solve()
+#define int long long
+const int maxn = 200000;
+vector<int> adjlist[maxn], sccadjlist[maxn];
+set<int> tmpvsi[maxn];
+int arr[maxn], disc[maxn], link[maxn], whichscc[maxn], scclongest[maxn], sccminval[maxn];
+bitset<maxn> bsi;
+vector<int> si;
+int curtime = 0;
+vector<vector<int>> sccs;
+void dfs(int cur)
 {
-    for (int i = 0; i < 36; i++)
-        cin >> all[i];
-    for (int i = 1; i < 6; i++)
-        arr[i] = i;
-    for (arr[2] = 2; arr[2] <= 12; arr[2]++)
-        for (arr[3] = arr[2] + 1; arr[3] <= 18; arr[3]++)
-            for (arr[4] = arr[3] + 1; arr[4] <= 24; arr[4]++)
-                for (arr[5] = arr[4] + 1; arr[5] <= 30; arr[5]++)
-                {
-                    msi.clear();
-                    int ct = 1;
-                    add.set();
-                    for (int i = 0; i < 6; i++)
-                        add[arr[i]] = 0;
-                    for (int i = 0; i < 36; i++)
-                        if (add[i])
-                            msi.insert(all[i]);
-                    eachval[0] = all[0];
-                    for (int i = 1; i < 6; i++)
-                        diff[i] = all[arr[i]] - all[arr[0]];
-                    while (!msi.empty())
-                    {
-                        eachval[ct] = *msi.begin();
-                        msi.erase(msi.begin());
-                        for (int i = 1; i < 6; i++)
-                        {
-                            auto it = msi.find(eachval[ct] + diff[i]);
-                            if (it != msi.end())
-                                msi.erase(it);
-                            else
-                                goto A;
-                        }
-                        ct++;
-                    }
-                    cout << 0;
-                    for (int i = 1; i < 6; i++)
-                        cout << " " << all[arr[i]] - all[arr[0]];
-                    cout << "\n";
-                    cout << all[0];
-                    for (int i = 1; i < 6; i++)
-                        cout << ' ' << eachval[i] - eachval[0] + all[0];
-                    cout << "\n";
-                    return;
-                A:;
-                }
-    cout << "IMPOSSIBLE\n";
+    disc[cur] = curtime++;
+    link[cur] = disc[cur];
+    si.push_back(cur);
+    bsi[cur] = 1;
+    for (auto a : adjlist[cur])
+        if (disc[a] == -1)
+        {
+            dfs(a);
+            link[cur] = min(link[cur], link[a]);
+        }
+        else if (bsi[a])
+            link[cur] = min(link[cur], link[a]);
+    if (link[cur] == disc[cur])
+    {
+        sccs.push_back(vector<int>());
+        while (!si.empty())
+        {
+            int tmp = si.back();
+            si.pop_back();
+            bsi[tmp] = 0;
+            whichscc[tmp] = sccs.size() - 1;
+            sccs.back().push_back(tmp);
+            if (sccs.back().back() == cur)
+                break;
+        }
+    }
 }
-int main()
+pair<int, int> sccdfs(int cur)
+{
+    if (scclongest[cur] == -1)
+    {
+        scclongest[cur] = sccs[cur].size();
+        sccminval[cur] = 0;
+        for (auto a : sccs[cur])
+            sccminval[cur] += arr[a];
+        pair<int, int> optimal(0, 0);
+        for (auto a : sccadjlist[cur])
+        {
+            pair<int, int> tmp = sccdfs(a);
+            if ((tmp.first > optimal.first) || (tmp.first == optimal.first && tmp.second < optimal.second))
+                optimal.swap(tmp);
+        }
+        scclongest[cur] += optimal.first;
+        sccminval[cur] += optimal.second;
+    }
+    return {scclongest[cur], sccminval[cur]};
+}
+signed main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
     int tests;
     cin >> tests;
     while (tests--)
-        solve();
+    {
+        int n, m;
+        cin >> n >> m;
+        for (int i = 0; i < n; i++)
+            adjlist[i].clear(), tmpvsi[i].clear();
+        for (int i = 0; i < n; i++)
+            cin >> arr[i];
+        for (int i = 0; i < m; i++)
+        {
+            int a, b;
+            cin >> a >> b;
+            a--, b--;
+            if (a != b)
+                tmpvsi[a].insert(b);
+        }
+        for (int i = 0; i < n; i++)
+            for (auto a : tmpvsi[i])
+                adjlist[i].push_back(a);
+        memset(disc, -1, sizeof disc);
+        si.clear();
+        bsi.reset();
+        sccs.clear();
+        for (int i = 0; i < n; i++)
+            if (disc[i] == -1)
+                dfs(i);
+        for (int i = 0; i < n; i++)
+            tmpvsi[i].clear(), sccadjlist[i].clear();
+        for (int i = 0; i < n; i++)
+            for (auto a : adjlist[i])
+                tmpvsi[whichscc[i]].insert(whichscc[a]);
+        for (int i = 0; i < n; i++)
+            for (auto a : tmpvsi[i])
+                if (i != a)
+                    sccadjlist[i].push_back(a);
+        memset(scclongest, -1, sizeof scclongest), memset(sccminval, -1, sizeof sccminval);
+        pair<int, int> ans(0, 0);
+        for (int i = 0; i < sccs.size(); i++)
+        {
+            pair<int, int> tmp = sccdfs(i);
+            if ((tmp.first > ans.first) || (tmp.first == ans.first && tmp.second < ans.second))
+                ans.swap(tmp);
+        }
+        cout << ans.first << " " << ans.second << "\n";
+    }
 }
