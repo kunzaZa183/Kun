@@ -1,207 +1,46 @@
-#include <iostream>
-
+#include <bits/stdc++.h>
 using namespace std;
-
-string seq;
-
-long long dp[100001][4];
-long long matrix[100001][4][4];
-long long mod = 1000000007;
-
-int chrToNum(char c)
+int maxi;
+vector<vector<int>> adjlist;
+vector<int> arr;
+int dfs(int cur, int par)
 {
-    switch (c)
-    {
-    case 'A':
-        return 0;
-    case 'G':
-        return 1;
-    case 'C':
-        return 2;
-    case 'T':
-        return 3;
-    default:
-        return 4;
-    }
+    vector<int> vi(2, 0);
+    for (auto a : adjlist[cur])
+        if (a != par)
+            vi.push_back(dfs(a, cur));
+    sort(vi.begin(), vi.end(), greater<int>());
+    maxi = max(maxi, vi[0] + vi[1] + arr[cur]);
+    return vi[0] + arr[cur];
 }
-
 int main()
 {
-    
     freopen("input.txt", "r", stdin);
     freopen("correctoutput.txt", "w", stdout);
-    cin >> seq;
-
-    if (seq[0] == '?')
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    arr.resize(n);
+    adjlist.resize(n);
+    for (auto &a : arr)
+        cin >> a;
+    for (int i = 0; i < n - 1; i++)
     {
-        for (int i = 0; i < 4; i++)
-        {
-            dp[0][i] = 1;
-        }
+        int a, b;
+        cin >> a >> b;
+        adjlist[a - 1].push_back(b - 1), adjlist[b - 1].push_back(a - 1);
     }
-    else
+    maxi = INT_MIN;
+    dfs(0, -1);
+    cout << maxi << '\n';
+    for (int i = 0; i < m; i++)
     {
-        dp[0][chrToNum(seq[0])] = 1;
+        int in, val;
+        cin >> in >> val;
+        arr[in - 1] = val;
+        maxi = INT_MIN;
+        dfs(0, -1);
+        cout << maxi << "\n";
     }
-
-    for (int i = 1; i < seq.length(); i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            for (int z = 0; z < 4; z++)
-            {
-                matrix[i][j][z] = 0;
-            }
-            if (seq[i] == '?' || chrToNum(seq[i]) == j)
-            {
-                matrix[i][j][j] = 1;
-            }
-            dp[i][j] += matrix[i][j][j] * dp[i - 1][j];
-            dp[i][j] %= mod;
-        }
-
-        for (int j = i - 1; j >= 0; j--)
-        {
-            if (seq[j] != '?' && seq[j] == seq[j + 1])
-            {
-                break;
-            }
-            for (int k = 0; k < 4; k++)
-            {
-                for (int z = 0; z < 4; z++)
-                {
-                    matrix[j][k][z] = 0;
-                    if (seq[j] == '?' || chrToNum(seq[j]) == k)
-                    {
-                        for (int m = 0; m < 4; m++)
-                        {
-                            if (m != k)
-                            {
-                                matrix[j][k][z] += matrix[j + 1][m][z];
-                                matrix[j][k][z] %= mod;
-                            }
-                        }
-                    }
-                    if (j == 0)
-                    {
-                        dp[i][k] += matrix[j][k][z];
-                    }
-                    else
-                    {
-                        dp[i][k] += matrix[j][k][z] * dp[j - 1][z];
-                    }
-                    dp[i][k] %= mod;
-                }
-            }
-        }
-    }
-
-    long long tot = 0;
-    for (int i = 0; i < 4; i++)
-    {
-        tot += dp[seq.length() - 1][i];
-        tot %= mod;
-    }
-    cout << tot << endl;
 }
-
-// #include <iostream>
-
-// using namespace std;
-
-// string seq;
-
-// long long dp[100001][5][4][4];
-// long long mod = 1000000007;
-
-// int chrToNum(char c) {
-//   switch(c) {
-//     case 'A':
-//       return 0;
-//     case 'G':
-//       return 1;
-//     case 'C':
-//       return 2;
-//     case 'T':
-//       return 3;
-//     default:
-//       return 4;
-//   }
-// }
-
-// int main() {
-//   cin >> seq;
-
-//   if (seq[0] == '?') {
-//     for (int j = 0; j < 4; j++) {
-//       dp[0][4][j][j] = 1;
-//     }
-//   } else {
-//     int c = chrToNum(seq[0]);
-//     dp[0][4][c][c] = 1;
-//   }
-
-//   for (int i = 1; i < seq.length(); i++) {
-//     for (int j = 0; j < 4; j++) {
-//       for (int k = 0; k < 4; k++) {
-//         if (seq[i] == '?') {
-//           for (int l = 0; l < 4; l++) {
-//             for (int m = 0; m < 4; m++) {
-//               if (m != l) {
-//                 dp[i][j][k][l] += dp[i-1][j][k][m];
-//                 dp[i][j][k][l] %= mod;
-//               }
-//             }
-//             dp[i][k][l][l] += dp[i-1][j][k][j];
-//               dp[i][k][l][l] %= mod;
-//           }
-//         } else {
-//           int l = chrToNum(seq[i]);
-//             for (int m = 0; m < 4; m++) {
-//               if (m != l) {
-//                 dp[i][j][k][l] += dp[i-1][j][k][m];
-//                 dp[i][j][k][l] %= mod;
-//               }
-//             }
-//               dp[i][k][l][l] += dp[i-1][j][k][j];
-//               dp[i][k][l][l] %= mod;
-//         }
-//       }
-//     }
-
-//       for (int k = 0; k < 4; k++) {
-//         if (seq[i] == '?') {
-//           for (int l = 0; l < 4; l++) {
-//             for (int m = 0; m < 4; m++) {
-//               if (m != l) {
-//                 dp[i][4][k][l] += dp[i-1][4][k][m];
-//                 dp[i][4][k][l] %= mod;
-//               }
-//             dp[i][k][l][l] += dp[i-1][4][k][m];
-//               dp[i][k][l][l] %= mod;
-//             }
-//           }
-//         } else {
-//           int l = chrToNum(seq[i]);
-//             for (int m = 0; m < 4; m++) {
-//               if (m != l) {
-//                 dp[i][4][k][l] += dp[i-1][4][k][m];
-//                 dp[i][4][k][l] %= mod;
-//               }
-//               dp[i][k][l][l] += dp[i-1][4][k][m];
-//               dp[i][k][l][l] %= mod;
-//             }
-//         }
-//       }
-//   }
-
-//   long long tot = 0;
-//   for (int i = 0; i < 4; i++) {
-//     for (int k = 0; k < 4; k++) {
-//       tot += dp[seq.length() - 1][i][k][i];
-//         tot += dp[seq.length() - 1][4][i][k];
-//       tot %= mod;
-//     }
-//   }
-//   cout << tot << endl;
-// }

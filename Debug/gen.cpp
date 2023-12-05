@@ -6,9 +6,16 @@ int main()
     cin.tie(0);
     freopen("input.txt", "w", stdout);
     srand(time(NULL));
-    int n = 6;
-    const string s = "ACGT?";
+    const int n = 100, qs = 30;
+    cout << n << ' ' << qs << "\n";
+    int par[n];
+    for (int i = 1; i < n; i++)
+        par[i] = rand() % i;
     for (int i = 0; i < n; i++)
-        cout << s[rand() % 5];
+        cout << rand() % 10 << ' ';
     cout << "\n";
+    for (int i = 1; i < n; i++)
+        cout << i + 1 << ' ' << par[i] + 1 << '\n';
+    for (int i = 0; i < qs; i++)
+        cout << rand() % n + 1 << ' ' << rand() % 10 << '\n';
 }
