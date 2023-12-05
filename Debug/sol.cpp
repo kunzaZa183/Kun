@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
 
 const int maxn = 100000;
 int arr[maxn], parcent[maxn];
