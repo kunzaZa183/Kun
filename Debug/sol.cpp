@@ -188,4 +188,8 @@ signed main()
 		}
 		cout << *allans.rbegin() << '\n';
 	}
+    int elements = 0;
+    for (int i = 0; i < maxn; i++)
+        elements += alldowncent[i].size();
+    cout << elements << '\n';
 }
