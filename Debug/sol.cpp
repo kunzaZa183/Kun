@@ -137,10 +137,10 @@ void eachcent(int cur, int siz, int oldcent)
 
 signed main()
 {
-	ios::sync_with_stdio(0);
-	cin.tie(0);
     freopen("input.txt", "r", stdin);
     freopen("output.txt", "w", stdout);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
 	int n, m;
 	cin >> n >> m;
 	for (int i = 0; i < n; i++)
@@ -188,8 +188,4 @@ signed main()
 		}
 		cout << *allans.rbegin() << '\n';
 	}
-    int elements = 0;
-    for (int i = 0; i < maxn; i++)
-        elements += alldowncent[i].size();
-    cout << elements << '\n';
 }

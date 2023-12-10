@@ -23,8 +23,6 @@ int main()
     }
     {
         auto start = high_resolution_clock::now();
-        for(i=0;i<1000;i++)
-            values3eedew
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
         cout << "Time taken by function: "
