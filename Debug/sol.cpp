@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <sys/resource.h>
 using namespace std;
 
 const int maxn = 100000;
@@ -139,6 +140,25 @@ signed main()
 {
     freopen("input.txt", "r", stdin);
     freopen("output.txt", "w", stdout);
+
+    const rlim_t kStackSize = 16 * 1024 * 1024;   // min stack size = 16 MB
+    struct rlimit rl;
+    int result;
+
+    result = getrlimit(RLIMIT_STACK, &rl);
+    if (result == 0)
+    {
+        if (rl.rlim_cur < kStackSize)
+        {
+            rl.rlim_cur = kStackSize;
+            result = setrlimit(RLIMIT_STACK, &rl);
+            if (result != 0)
+            {
+                fprintf(stderr, "setrlimit returned result = %d\n", result);
+            }
+        }
+    }
+
 	ios::sync_with_stdio(0);
 	cin.tie(0);
 	int n, m;
