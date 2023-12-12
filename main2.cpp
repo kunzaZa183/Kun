@@ -1,123 +1,185 @@
-#include <vector>
-#include <iostream>
-#include <algorithm>
-#include <string>
+#include <bits/stdc++.h>
+
+#define long long long
+#define pii pair<long, long>
+#define x first
+#define y second
 
 using namespace std;
 
-#define all(x) begin(x), end(x)
+#define var int p = 1, int l = 1, int r = n
+#define mid ((l + r) >> 1)
+#define lb p << 1, l, mid
+#define rb p << 1 | 1, mid + 1, r
 
-const int maxn = 5e6 + 42;
-const int maxs = 1e5 + 42;
-vector<int> g[maxs], gt[maxs];
-string work[maxs];
-char used[maxn];
+const int N = 1 << 18;
 
-int d;
+int n, m;
+long A[N];
 
-#define stack laflal
+class LazySegmentTree
+{
+private:
+    long t[N << 1], lz[N << 1];
 
-int stack[2 * maxn];
-int head = 0;
+    void push(var)
+    {
+        if (!lz[p])
+            return;
+        t[p] += lz[p];
+        if (l != r)
+            lz[p << 1] += lz[p], lz[p << 1 | 1] += lz[p];
+        lz[p] = 0;
+    }
 
-void dfs(int v, int mod = 0) {
-	used[v] = 1;
-	for(auto it: (mod == 0 ? g[v / 50] : gt[v / 50])) {
-		int u = it * 50 + (v % 50 + (mod == 0 ? 1 : d - 1)) % d;
-		if(!used[u]) {
-			dfs(u, mod);
-		}
-	}
-	stack[head++] = v;
-	used[v] = 2;
+    template <typename T>
+    void travel(int x, int y, const T &f, var)
+    {
+        push(p, l, r);
+        if (x > r || l > y)
+            return;
+        if (x <= l && r <= y)
+            return f(p, l, r);
+        travel(x, y, f, lb), travel(x, y, f, rb);
+        t[p] = max(t[p << 1], t[p << 1 | 1]);
+    }
+
+public:
+    void update(int x, int y, long k)
+    {
+        travel(x, y, [&](var)
+               { lz[p] += k, push(p, l, r); });
+    }
+
+    long query(int x, int y, long ret = -1e18)
+    {
+        travel(x, y, [&](var)
+               { ret = max(ret, t[p]); });
+        return ret;
+    }
+} tree[20];
+
+class Set
+{
+private:
+    priority_queue<long> Q1, Q2;
+
+    void balance()
+    {
+        while (!Q2.empty() && Q1.top() == Q2.top())
+            Q1.pop(), Q2.pop();
+    }
+
+public:
+    void add(long x) { Q1.emplace(x); }
+    void del(long x) { Q2.emplace(x); }
+
+    pii get_max()
+    {
+        balance();
+        pii ret(Q1.top(), -1e18);
+        Q1.pop();
+        balance(), ret.y = Q1.empty() ? -1e18 : Q1.top();
+        Q1.emplace(ret.x);
+        return ret;
+    }
+} S[N], ans;
+
+long get_ans(int u)
+{
+    pii ret = S[u].get_max();
+    return max(A[u] + ret.x, A[u] + ret.x + ret.y);
 }
 
-int in_comp[maxn];
-int comp_cnt[maxn];
-int counted[maxs];
+long pre_ans[N];
 
-vector<int> G[maxn];
+vector<int> g[N];
 
-void dfs_ans(int v) {
-	used[v] = 1;
-	int mx = 0;
-	for(auto u: G[v]) {
-		if(!used[u]) {
-			dfs_ans(u);
-		}
-		mx = max(mx, comp_cnt[u]);
-	}
-	comp_cnt[v] += mx;
-	used[v] = 2;
+int sz[N], chk[N], idx[20];
+int rot[20][N], in[20][N], out[20][N], par[20][N];
+long pre[20][N];
+
+int get_sz(int u, int p)
+{
+    sz[u] = 1;
+    for (int v : g[u])
+        if (v != p && !chk[v])
+            sz[u] += get_sz(v, u);
+    return sz[u];
 }
 
-int u[maxs], v[maxs];
-signed main() {
-	//freopen("input.txt", "r", stdin);
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-	int n, m;
-	cin >> n >> m >> d;
-	//const int GG = 1e5;
-	//n = GG, m = GG, d = 50;
-	for(int i = 0; i < m; i++) {
-		cin >> u[i] >> v[i];
-		u[i]--, v[i]--;
-		g[u[i]].push_back(v[i]);
-		gt[v[i]].push_back(u[i]);
-	}
-	for(int i = 0; i < n; i++) {
-		cin >> work[i];
-	}
-	dfs(0);
-	int tops = head;
-	reverse(stack, stack + tops);
-	fill(used, used + maxn, 1);
-	for(int i = 0; i < tops; i++) {
-		int it = stack[i];
-		used[it] = 0;
-	}
-	for(int i = 0; i < tops; i++) {
-		int it = stack[i];
-		if(!used[it]) {
-			int cur = head;
-			dfs(it, 1);
-			int ncur = head;
-			head = tops;
-			for(int j = cur; j < ncur; j++) {
-				int jt = stack[j];
-				in_comp[jt] = it;
-				if(work[jt / 50][jt % 50] == '1') {
-					if(!counted[jt / 50]) {
-						counted[jt / 50] = 1;
-						comp_cnt[it]++;
-					}
-				}
-			}
-			//cout << "! " << it << ' ' << comp_cnt[it] << endl;
-			for(int j = cur; j < ncur; j++) {
-				int jt = stack[j];
-				counted[jt / 50] = 0;
-			}
-		}
-	}
-	
-	for(int i = 0; i < tops; i++) {
-		int v = stack[i];
-		for(auto it: g[v / 50]) {
-			int u = it * 50 + (v % 50 + 1) % d;
-			if(in_comp[v] != in_comp[u]) {
-				G[in_comp[v]].push_back(in_comp[u]);
-			}
-		}
-	}
-	fill(used, used + maxn, 1);
-	for(int i = 0; i < tops; i++) {
-		int it = stack[i];
-		used[it] = 0;
-	}
-	dfs_ans(in_comp[0]);
-	cout << comp_cnt[in_comp[0]] << endl;
-	//cout << clock() / double(CLOCKS_PER_SEC) << endl;
-	return 0;
+int find_cen(int u, int p, int all, int &ret)
+{
+    int mx = all - sz[u];
+    for (int v : g[u])
+        if (v != p && !chk[v])
+            mx = max(mx, find_cen(v, u, all, ret));
+    if (mx <= (all + 1) / 2)
+        ret = u;
+    return sz[u];
+}
+
+void dfs(int u, int p, int root, int lvl)
+{
+    par[lvl][u] = p;
+    in[lvl][u] = ++idx[lvl], rot[lvl][u] = root;
+    for (int v : g[u])
+        if (v != p && !chk[v])
+            dfs(v, u, root, lvl);
+    out[lvl][u] = idx[lvl];
+    tree[lvl].update(in[lvl][u], out[lvl][u], A[u]);
+}
+
+int cpar[N], cdep[N];
+
+void process(int u, int p, int lvl)
+{
+    get_sz(u, u), find_cen(u, u, sz[u], u);
+    S[u].add(0);
+    for (int v : g[u])
+        if (!chk[v])
+        {
+            dfs(v, u, v, lvl);
+            S[u].add(pre[lvl][v] = tree[lvl].query(in[lvl][v], out[lvl][v]));
+        }
+    ans.add(pre_ans[u] = get_ans(u));
+    cpar[u] = p, cdep[u] = lvl, chk[u] = 1;
+    for (int v : g[u])
+        if (!chk[v])
+            process(v, u, lvl + 1);
+}
+
+int main()
+{
+    scanf("%d %d", &n, &m);
+    for (int i = 1; i <= n; i++)
+        scanf("%lld", A + i);
+    for (int i = 1, a, b; i < n; i++)
+    {
+        scanf("%d %d", &a, &b);
+        g[a].emplace_back(b), g[b].emplace_back(a);
+    }
+    process(1, 0, 1);
+    printf("%lld\n", ans.get_max().x);
+    for (int i = 1, a, b; i <= m; i++)
+    {
+        scanf("%d %d", &a, &b);
+        long dif = b - A[a];
+        A[a] = b;
+        ans.del(pre_ans[a]);
+        ans.add(pre_ans[a] = get_ans(a));
+        for (int u = cpar[a]; u; u = cpar[u])
+        {
+            int lvl = cdep[u];
+            tree[lvl].update(in[lvl][a], out[lvl][a], dif);
+            S[u].del(pre[lvl][rot[lvl][a]]);
+            S[u].add(pre[lvl][rot[lvl][a]] = tree[lvl].query(
+                         in[lvl][rot[lvl][a]], out[lvl][rot[lvl][a]]));
+            ans.del(pre_ans[u]);
+            ans.add(pre_ans[u] = get_ans(u));
+        }
+        printf("%lld\n", ans.get_max().x);
+    }
+
+    return 0;
 }

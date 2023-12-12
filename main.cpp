@@ -30,7 +30,7 @@ int dfs2(int cur, int par)
 int curcent;
 
 vector<int> segtree[maxn], lazy[maxn];
-inline void lazyv(int curin)
+void lazyv(int curin)
 {
     segtree[curcent][curin] += lazy[curcent][curin];
     if (curin * 2 + 1 < lazy[curcent].size())
@@ -41,7 +41,7 @@ inline void lazyv(int curin)
 }
 
 int ql, qr, val;
-inline void update(int curin, int curl, int curr)
+void update(int curin, int curl, int curr)
 {
     lazyv(curin);
 
@@ -57,7 +57,7 @@ inline void update(int curin, int curl, int curr)
     segtree[curcent][curin] = max(segtree[curcent][curin * 2 + 1], segtree[curcent][curin * 2 + 2]);
 }
 
-inline int query(int curin, int curl, int curr)
+int query(int curin, int curl, int curr)
 {
     lazyv(curin);
 
@@ -70,7 +70,7 @@ inline int query(int curin, int curl, int curr)
 
 int timer;
 map<int, int> starttime[maxn], endtime[maxn];
-inline int eulertour(int cur, int par, int curval)
+int eulertour(int cur, int par, int curval)
 {
     siz[cur] = 1;
     ql = timer, qr = timer, val = curval;
@@ -86,7 +86,7 @@ inline int eulertour(int cur, int par, int curval)
 map<int, int> parnextroot[maxn];
 
 int curnextroot;
-inline void dfs3(int cur, int par)
+void dfs3(int cur, int par)
 {
     parnextroot[curcent][cur] = curnextroot;
     for (auto a : adjlist[cur])
@@ -97,40 +97,31 @@ inline void dfs3(int cur, int par)
 multiset<int> allans, alldowncent[maxn];
 int oldans[maxn];
 
-inline int sumfirsttwo(multiset<int> &msi)
+int sumfirsttwo(multiset<int> &msi)
 {
     auto it = msi.rbegin(), it2 = msi.rbegin();
     it2++;
     return *it + *it2;
 }
 
-inline void eachcent(int cur, int siz, int oldcent)
+void eachcent(int cur, int siz, int oldcent)
 {
-    {
-        dfs1(cur, -1);
-    }
+    dfs1(cur, -1);
     numintree = siz;
-    int cent;
-    {
-        cent = dfs2(cur, -1);
-    }
+    int cent = dfs2(cur, -1);
     parcent[cent] = oldcent;
 
     timer = 0;
     curcent = cent;
     segtree[cent].resize(4 * siz), lazy[cent].resize(4 * siz);
-    {
-        eulertour(cent, -1, 0);
-    }
+    eulertour(cent, -1, 0);
     alldowncent[cent].insert(0), alldowncent[cent].insert(0);
     for (auto a : adjlist[cent])
     {
         ql = starttime[cent][a], qr = endtime[cent][a] - 1;
         alldowncent[cent].insert(query(0, 0, siz - 1));
         curnextroot = a;
-        {
-            dfs3(a, cent);
-        }
+        dfs3(a, cent);
     }
     oldans[cent] = sumfirsttwo(alldowncent[cent]) + arr[cent];
     allans.insert(oldans[cent]);
@@ -140,27 +131,9 @@ inline void eachcent(int cur, int siz, int oldcent)
         if (!used[a])
             eachcent(a, ::siz[a], cent);
 }
-static void run_with_stack_size(void (*func)(void), size_t stsize)
-{
-    char *stack, *send;
-    stack = (char *)malloc(stsize);
-    send = stack + stsize - 16;
-    send = (char *)((uintptr_t)send / 16 * 16);
-    asm volatile(
-        "mov %%rsp, (%0)\n"
-        "mov %0, %%rsp\n"
-        :
-        : "r"(send));
-    func();
-    asm volatile("mov (%0), %%rsp\n" : : "r"(send));
-    free(stack);
-}
 
-void main_()
+int main()
 {
-
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie(0);
     int n, m;
@@ -197,9 +170,7 @@ void main_()
 
             ql = starttime[in][nextroot], qr = endtime[in][nextroot] - 1;
             int ql2 = ql, qr2 = qr;
-            int debug = query(0, 0, segtree[curcent].size() / 4 - 1);
-            if (alldowncent[in].find(debug) != alldowncent[in].end())
-                alldowncent[in].erase(alldowncent[in].find(debug));
+            alldowncent[in].erase(alldowncent[in].find(query(0, 0, segtree[curcent].size() / 4 - 1)));
 
             ql = starttime[in][orig], qr = endtime[in][orig] - 1, ::val = change;
             update(0, 0, segtree[curcent].size() / 4 - 1);
@@ -212,10 +183,4 @@ void main_()
         }
         cout << *allans.rbegin() << '\n';
     }
-}
-
-int main()
-{
-    run_with_stack_size(main_, 1024 * 1024 * 128);
-    return 0;
 }

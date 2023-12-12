@@ -30,7 +30,7 @@ int dfs2(int cur, int par)
 int curcent;
 
 vector<int> segtree[maxn], lazy[maxn];
-inline void lazyv(int curin)
+ void lazyv(int curin)
 {
     segtree[curcent][curin] += lazy[curcent][curin];
     if (curin * 2 + 1 < lazy[curcent].size())
@@ -41,7 +41,7 @@ inline void lazyv(int curin)
 }
 
 int ql, qr, val;
-inline void update(int curin, int curl, int curr)
+ void update(int curin, int curl, int curr)
 {
     lazyv(curin);
 
@@ -57,7 +57,7 @@ inline void update(int curin, int curl, int curr)
     segtree[curcent][curin] = max(segtree[curcent][curin * 2 + 1], segtree[curcent][curin * 2 + 2]);
 }
 
-inline int query(int curin, int curl, int curr)
+ int query(int curin, int curl, int curr)
 {
     lazyv(curin);
 
@@ -70,7 +70,7 @@ inline int query(int curin, int curl, int curr)
 
 int timer;
 map<int, int> starttime[maxn], endtime[maxn];
-inline int eulertour(int cur, int par, int curval)
+ int eulertour(int cur, int par, int curval)
 {
     siz[cur] = 1;
     ql = timer, qr = timer, val = curval;
@@ -86,7 +86,7 @@ inline int eulertour(int cur, int par, int curval)
 map<int, int> parnextroot[maxn];
 
 int curnextroot;
-inline void dfs3(int cur, int par)
+ void dfs3(int cur, int par)
 {
     parnextroot[curcent][cur] = curnextroot;
     for (auto a : adjlist[cur])
@@ -97,14 +97,14 @@ inline void dfs3(int cur, int par)
 multiset<int> allans, alldowncent[maxn];
 int oldans[maxn];
 
-inline int sumfirsttwo(multiset<int> &msi)
+ int sumfirsttwo(multiset<int> *msi)
 {
-    auto it = msi.rbegin(), it2 = msi.rbegin();
+    auto it = msi->rbegin(), it2 = msi->rbegin();
     it2++;
     return *it + *it2;
 }
 
-inline void eachcent(int cur, int siz, int oldcent)
+ void eachcent(int cur, int siz, int oldcent)
 {
     {
         dfs1(cur, -1);
@@ -197,9 +197,7 @@ void main_()
 
             ql = starttime[in][nextroot], qr = endtime[in][nextroot] - 1;
             int ql2 = ql, qr2 = qr;
-            int debug = query(0, 0, segtree[curcent].size() / 4 - 1);
-            if (alldowncent[in].find(debug) != alldowncent[in].end())
-                alldowncent[in].erase(alldowncent[in].find(debug));
+            alldowncent[in].erase(alldowncent[in].find(query(0, 0, segtree[curcent].size() / 4 - 1)));
 
             ql = starttime[in][orig], qr = endtime[in][orig] - 1, ::val = change;
             update(0, 0, segtree[curcent].size() / 4 - 1);
