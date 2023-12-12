@@ -181,7 +181,24 @@ void updateCentroid(int u, int v, int tt)
     }
 }
 
-int main()
+//added by kunzaZa183
+static void run_with_stack_size(void (*func)(void), size_t stsize)
+{
+    char *stack, *send;
+    stack = (char *)malloc(stsize);
+    send = stack + stsize - 16;
+    send = (char *)((uintptr_t)send / 16 * 16);
+    asm volatile(
+        "mov %%rsp, (%0)\n"
+        "mov %0, %%rsp\n"
+        :
+        : "r"(send));
+    func();
+    asm volatile("mov (%0), %%rsp\n" : : "r"(send));
+    free(stack);
+}
+
+void main_()
 {
 
     freopen("input.txt", "r", stdin);
@@ -205,4 +222,10 @@ int main()
         updateCentroid(u, v, i);
         printf("%d\n", t[0][1]);
     }
+}
+
+int main()
+{
+    run_with_stack_size(main_, 1024 * 1024 * 128);
+    return 0;
 }
