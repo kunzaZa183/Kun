@@ -6,7 +6,7 @@ int main()
     cin.tie(0);
     freopen("input.txt", "w", stdout);
     srand(time(NULL));
-    const int n = 100000, qs = 100000;
+    const int n = 1000, qs = 1000;
     cout << n << ' ' << qs << "\n";
     int par[n];
     for (int i = 1; i < n; i++)
