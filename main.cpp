@@ -1,209 +1,96 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-const int maxn = 100000, logn = 17;
-int arr[maxn], parcent[maxn];
-vector<int> adjlist[maxn];
-bitset<maxn> used;
-
-int siz[maxn];
-int dfs1(int cur, int par)
+#define int long long
+const int MOD = 998244353;
+int logpow(int a, int b)
 {
-    siz[cur] = 1;
-    for (auto a : adjlist[cur])
-        if (a != par && !used[a])
-            siz[cur] += dfs1(a, cur);
-    return siz[cur];
+    if (b == 0)
+        return 1;
+    if (b == 1)
+        return a;
+    int x = logpow(a, b / 2);
+    if (b % 2 == 1)
+        return x * x % MOD * a % MOD;
+    return x * x % MOD;
 }
-
-int dfs2(int cur, int par, int idealnum)
+int small2pow(int num)
 {
-    for (auto a : adjlist[cur])
-        if (a != par && !used[a])
-            if (siz[a] * 2 > idealnum)
-                return dfs2(a, cur, idealnum);
-    return cur;
+    int cur = 1;
+    while (cur <= num)
+        cur *= 2;
+    return cur / 2;
 }
-
-int ql, qr, val;
-
-struct lazyseg
+int floorlog2(int num)
 {
-    int seg[2 * maxn], lazy[2 * maxn];
-    void push(int curin, int curl, int curr)
+    int ct = 0;
+    while (num != 1)
     {
-        if (curl != curr)
-            lazy[curin * 2 + 1] += lazy[curin], lazy[curin * 2 + 2] += lazy[curin];
-        seg[curin] += lazy[curin];
-        lazy[curin] = 0;
+        ct++;
+        num /= 2;
     }
-
-    void update(int curin, int curl, int curr)
-    {
-        push(curin, curl, curr);
-
-        if (qr < curl || curr < ql)
-            return;
-        if (ql <= curl && curr <= qr)
-        {
-            lazy[curin] = val;
-            push(curin, curl, curr);
-            return;
-        }
-        update(curin * 2 + 1, curl, (curl + curr) / 2), update(curin * 2 + 2, (curl + curr) / 2 + 1, curr);
-        seg[curin] = max(seg[curin * 2 + 1], seg[curin * 2 + 2]);
-    }
-
-    int query(int curin, int curl, int curr)
-    {
-        push(curin, curl, curr);
-        if (qr < curl || curr < ql)
-            return 0;
-        if (ql <= curl && curr <= qr)
-            return seg[curin];
-        return max(query(curin * 2 + 1, curl, (curl + curr) / 2), query(curin * 2 + 2, (curl + curr) / 2 + 1, curr));
-    }
-
-} segtree[logn];
-
-int arrtimer[logn];
-int starttime[logn][maxn], endtime[logn][maxn];
-int eulertour(int cur, int level, int par, int curval)
-{
-    siz[cur] = 1;
-    ql = arrtimer[level], qr = arrtimer[level], val = curval;
-    segtree[level].update(0, 0, maxn - 1);
-    starttime[level][cur] = arrtimer[level]++;
-    for (auto a : adjlist[cur])
-        if (a != par && !used[a])
-            siz[cur] += eulertour(a, level, cur, curval + arr[a]);
-    endtime[level][cur] = arrtimer[level];
-    return siz[cur];
+    return ct;
 }
-
-int parnextroot[logn][maxn];
-
-void dfs3(int cur, int par, int nextroot, int level)
+vector<pair<int, int>> vpii;
+int recur(int curnum, int allchild)
 {
-    parnextroot[level][cur] = nextroot;
-    for (auto a : adjlist[cur])
-        if (!used[a] && a != par)
-            dfs3(a, cur, nextroot, level);
+    if (small2pow(allchild) == allchild)
+    {
+        int tmp = floorlog2(allchild);
+        return (curnum * vpii[tmp].first % MOD + vpii[tmp].second) % MOD;
+    }
+    int lessthan = small2pow(allchild);
+    int leftchild = lessthan, rightchild = allchild - leftchild;
+    if (rightchild < lessthan / 2)
+    {
+        rightchild = lessthan / 2;
+        leftchild = allchild - rightchild;
+    }
+
+    int retval = ((recur(curnum * 2, leftchild) + recur(curnum * 2 + 1, rightchild)) % MOD);
+    int someval = (logpow(2, allchild) - 1) - (logpow(2, leftchild) - 1) - (logpow(2, rightchild) - 1);
+    while (someval < 0)
+        someval += MOD;
+    someval %= MOD;
+    retval += curnum * someval % MOD;
+    retval %= MOD;
+    return retval;
 }
-
-struct multi
-{
-    priority_queue<int> pq1, pq2;
-    void add(int x)
-    {
-        pq1.push(x);
-    }
-    void del(int x)
-    {
-        pq2.push(x);
-    }
-    pair<int, int> get2max()
-    {
-        while (!pq2.empty())
-            if (pq1.top() == pq2.top())
-                pq1.pop(), pq2.pop();
-            else
-                break;
-        pair<int, int> ret;
-        ret.first = pq1.top();
-        pq1.pop();
-        while (!pq2.empty())
-            if (pq1.top() == pq2.top())
-                pq1.pop(), pq2.pop();
-            else
-                break;
-        ret.second = pq1.top();
-        pq1.push(ret.first);
-        return ret;
-    }
-};
-
-multi allans, alldowncent[maxn];
-int oldans[maxn];
-
-int centlevel[maxn];
-
-int sum(pair<int, int> a)
-{
-    return a.first + a.second;
-}
-
-void eachcent(int cur, int siz, int oldcent, int level)
-{
-    dfs1(cur, -1);
-    int cent = dfs2(cur, -1, siz);
-    parcent[cent] = oldcent;
-    centlevel[cent] = level;
-
-    eulertour(cent, level, -1, 0);
-    alldowncent[cent].add(0);
-    for (auto a : adjlist[cent])
-    {
-        ql = starttime[level][a], qr = endtime[level][a] - 1;
-        alldowncent[cent].add(segtree[level].query(0, 0, maxn - 1));
-        dfs3(a, cent, a, level);
-    }
-    oldans[cent] = sum(alldowncent[cent].get2max()) + arr[cent];
-    allans.add(oldans[cent]);
-
-    used[cent] = 1;
-    for (auto a : adjlist[cent])
-        if (!used[a])
-            eachcent(a, ::siz[a], cent, level + 1);
-}
-
-int main()
+signed main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    int n, m;
-    cin >> n >> m;
-    for (int i = 0; i < n; i++)
-        cin >> arr[i];
-    for (int i = 0; i < n - 1; i++)
+    int tests;
+    cin >> tests;
+    vpii.emplace_back(1, 0);
+    int tmp = 1;
+    for (int i = 1; i <= 62; i++)
     {
-        int a, b;
-        cin >> a >> b;
-        adjlist[a - 1].push_back(b - 1), adjlist[b - 1].push_back(a - 1);
-    }
-    used.reset();
-    eachcent(0, n, -1, 0);
-    cout << allans.get2max().first << '\n';
-    while (m--)
-    {
-        int in, val;
-        cin >> in >> val;
-        in--;
-        int change = val - arr[in];
-        arr[in] = val;
-        int curlev = centlevel[in];
-        allans.del(oldans[in]);
+        tmp *= 2;
+        int tmpmod = tmp / 2 % MOD;
+        pair<int, int> pii;
 
-        oldans[in] = sum(alldowncent[in].get2max()) + arr[in];
-        allans.add(oldans[in]);
-        int orig = in;
-        in = parcent[in];
-        curlev--;
-        while (curlev >= 0)
-        {
-            allans.del(oldans[in]);
-            int nextroot = parnextroot[curlev][orig];
-            ql = starttime[curlev][nextroot], qr = endtime[curlev][nextroot] - 1;
-            alldowncent[in].del(segtree[curlev].query(0, 0, maxn - 1));
-            ql = starttime[curlev][orig], qr = endtime[curlev][orig] - 1, ::val = change;
-            segtree[curlev].update(0, 0, maxn - 1);
-            ql = starttime[curlev][nextroot], qr = endtime[curlev][nextroot] - 1;
-            alldowncent[in].add(segtree[curlev].query(0, 0, maxn - 1));
-            oldans[in] = sum(alldowncent[in].get2max()) + arr[in];
-            allans.add(oldans[in]);
-            in = parcent[in];
-            curlev--;
-        }
-        cout << allans.get2max().first << '\n';
+        // left
+        pii.first += vpii.back().first * 2 % MOD;
+        pii.second += vpii.back().second;
+        pii.first %= MOD, pii.second %= MOD;
+
+        // right
+        pii.first += vpii.back().first * 2 % MOD;
+        pii.second += vpii.back().second + vpii.back().first;
+        pii.first %= MOD, pii.second %= MOD;
+
+        // center
+        pii.first += (logpow(2, tmp % MOD) - 1) - (logpow(2, tmpmod) - 1) * 2 % MOD;
+        while (pii.first < 0)
+            pii.first += MOD;
+        pii.first %= MOD;
+
+        vpii.push_back(pii);
+    }
+    while (tests--)
+    {
+        int n;
+        cin >> n;
+        cout << recur(1, n) << '\n';
     }
 }
