@@ -13,38 +13,15 @@ int logpow(int a, int b)
         return x * x % MOD * a % MOD;
     return x * x % MOD;
 }
-int small2pow(int num)
-{
-    int cur = 1;
-    while (cur <= num)
-        cur *= 2;
-    return cur / 2;
-}
-int floorlog2(int num)
-{
-    int ct = 0;
-    while (num != 1)
-    {
-        ct++;
-        num /= 2;
-    }
-    return ct;
-}
-vector<pair<int, int>> vpii;
+map<int, pair<int, int>> vpii;
 int recur(int curnum, int allchild)
 {
-    if (small2pow(allchild) == allchild)
-    {
-        int tmp = floorlog2(allchild);
-        return (curnum * vpii[tmp].first % MOD + vpii[tmp].second) % MOD;
-    }
-    int lessthan = small2pow(allchild);
-    int leftchild = lessthan, rightchild = allchild - leftchild;
-    if (rightchild < lessthan / 2)
-    {
-        rightchild = lessthan / 2;
-        leftchild = allchild - rightchild;
-    }
+    curnum %= MOD;
+    auto it = vpii.find(allchild);
+    if (it != vpii.end())
+        return (curnum * it->second.first % MOD + it->second.second) % MOD;
+
+    int leftchild = allchild - allchild / 2, rightchild = allchild / 2;
 
     int retval = ((recur(curnum * 2, leftchild) + recur(curnum * 2 + 1, rightchild)) % MOD);
     int someval = (logpow(2, allchild) - 1) - (logpow(2, leftchild) - 1) - (logpow(2, rightchild) - 1);
@@ -53,6 +30,28 @@ int recur(int curnum, int allchild)
     someval %= MOD;
     retval += curnum * someval % MOD;
     retval %= MOD;
+
+    auto itl = vpii.find(leftchild), itr = vpii.find(rightchild);
+    pair<int, int> pii;
+
+    // left
+    pii.first += itl->second.first * 2 % MOD;
+    pii.second += itl->second.second;
+    pii.first %= MOD, pii.second %= MOD;
+
+    // right
+    pii.first += itr->second.first * 2 % MOD;
+    pii.second += itr->second.second + itr->second.first;
+    pii.first %= MOD, pii.second %= MOD;
+
+    // center
+    pii.first += (logpow(2, allchild) - 1) - (logpow(2, leftchild) - 1) - (logpow(2, rightchild) - 1);
+    while (pii.first < 0)
+        pii.first += MOD;
+    pii.first %= MOD;
+
+    vpii[allchild] = pii;
+
     return retval;
 }
 signed main()
@@ -61,32 +60,7 @@ signed main()
     cin.tie(0);
     int tests;
     cin >> tests;
-    vpii.emplace_back(1, 0);
-    int tmp = 1;
-    for (int i = 1; i <= 62; i++)
-    {
-        tmp *= 2;
-        int tmpmod = tmp / 2 % MOD;
-        pair<int, int> pii;
-
-        // left
-        pii.first += vpii.back().first * 2 % MOD;
-        pii.second += vpii.back().second;
-        pii.first %= MOD, pii.second %= MOD;
-
-        // right
-        pii.first += vpii.back().first * 2 % MOD;
-        pii.second += vpii.back().second + vpii.back().first;
-        pii.first %= MOD, pii.second %= MOD;
-
-        // center
-        pii.first += (logpow(2, tmp % MOD) - 1) - (logpow(2, tmpmod) - 1) * 2 % MOD;
-        while (pii.first < 0)
-            pii.first += MOD;
-        pii.first %= MOD;
-
-        vpii.push_back(pii);
-    }
+    vpii[1] = {1, 0};
     while (tests--)
     {
         int n;
