@@ -1,70 +1,66 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
-const int MOD = 998244353;
-int logpow(int a, int b)
+int32_t main()
 {
-    if (b == 0)
-        return 1;
-    if (b == 1)
-        return a;
-    int x = logpow(a, b / 2);
-    if (b % 2 == 1)
-        return x * x % MOD * a % MOD;
-    return x * x % MOD;
-}
-map<int, pair<int, int>> vpii;
-int recur(int curnum, int allchild)
-{
-    curnum %= MOD;
-    auto it = vpii.find(allchild);
-    if (it != vpii.end())
-        return (curnum * it->second.first % MOD + it->second.second) % MOD;
-
-    int leftchild = allchild - allchild / 2, rightchild = allchild / 2;
-
-    int retval = ((recur(curnum * 2, leftchild) + recur(curnum * 2 + 1, rightchild)) % MOD);
-    int someval = (logpow(2, allchild) - 1) - (logpow(2, leftchild) - 1) - (logpow(2, rightchild) - 1);
-    while (someval < 0)
-        someval += MOD;
-    someval %= MOD;
-    retval += curnum * someval % MOD;
-    retval %= MOD;
-
-    auto itl = vpii.find(leftchild), itr = vpii.find(rightchild);
-    pair<int, int> pii;
-
-    // left
-    pii.first += itl->second.first * 2 % MOD;
-    pii.second += itl->second.second;
-    pii.first %= MOD, pii.second %= MOD;
-
-    // right
-    pii.first += itr->second.first * 2 % MOD;
-    pii.second += itr->second.second + itr->second.first;
-    pii.first %= MOD, pii.second %= MOD;
-
-    // center
-    pii.first += (logpow(2, allchild) - 1) - (logpow(2, leftchild) - 1) - (logpow(2, rightchild) - 1);
-    while (pii.first < 0)
-        pii.first += MOD;
-    pii.first %= MOD;
-
-    vpii[allchild] = pii;
-
-    return retval;
-}
-signed main()
-{
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    int tests;
-    cin >> tests;
-    vpii[1] = {1, 0};
-    while (tests--)
+    freopen("in.txt", "r", stdin);
+    freopen("out.txt", "w", stdout);
+    vector<pair<int, int>> allseeds;
+    int num = 0, range;
+    cin >> num >> range;
+    while (num != -1)
     {
-        int n;
-        cin >> n;
-        cout << recur(1, n) << '\n';
+        allseeds.emplace_back(num, num + range);
+        cin >> num >> range;
+    }
+    sort(allseeds.begin(), allseeds.end());
+    for (int i = 0; i < 7; i++)
+    {
+        vector<tuple<int, int, int>> vtiii;
+        int a = 0, b = 0, c = 0;
+        while (cin >> a >> b >> c, a != -1)
+            vtiii.emplace_back(b, b + c, a);
+        sort(vtiii.begin(), vtiii.end());
+        vector<pair<int, int>> last;
+        for (auto &a : allseeds)
+        {
+            for (auto [source, end, dest] : vtiii)
+                if (source >= a.second)
+                    break;
+                else if (source >= a.first)
+                {
+                    if (end >= a.second)
+                    {
+                        last.emplace_back(dest, dest + a.second - source);
+                        a.second = source;
+                        break;
+                    }
+                    else if (end > a.first)
+                    {
+                        last.emplace_back(a.first, source);
+                        last.emplace_back(dest, dest + end - source);
+                        a.first = end;
+                    }
+                }
+                else if (source < a.first)
+                {
+                    if (end >= a.second)
+                    {
+                        last.emplace_back(dest + a.first - source, dest + a.second - source);
+                        a.first = a.second;
+                        break;
+                    }
+                    else if (end > a.first)
+                    {
+                        last.emplace_back(a.first - source + dest,dest + end - source);
+                        a.first = end;
+                    }
+                }
+            if (a.first != a.second)
+                last.push_back(a);
+        }
+        sort(last.begin(), last.end());
+        allseeds.swap(last);
+        cout << allseeds.front().first << '\n';
     }
 }

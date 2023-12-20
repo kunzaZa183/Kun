@@ -6,16 +6,22 @@ int main()
     cin.tie(0);
     freopen("input.txt", "w", stdout);
     srand(time(NULL));
-    const int n = 1000, qs = 1000;
-    cout << n << ' ' << qs << "\n";
-    int par[n];
-    for (int i = 1; i < n; i++)
-        par[i] = i - 1;
-    for (int i = 0; i < n; i++)
-        cout << rand() % 1000 - 500 << ' ';
-    cout << "\n";
-    for (int i = 1; i < n; i++)
-        cout << i + 1 << ' ' << par[i] + 1 << '\n';
-    for (int i = 0; i < qs; i++)
-        cout << rand() % n + 1 << ' ' << rand() % 1000 - 500 << '\n';
+    const int seeds = 5;
+    for (int i = 0; i < seeds; i++)
+        cout << rand() % 30 << ' ' << rand() % 10 + 1 << "\n";
+    cout << "-1 -1\n";
+    for (int i = 0; i < 7; i++)
+    {
+        int ranges = 4;
+        vector<tuple<int, int, int>> vpii;
+        vpii.emplace_back(rand() % 20, rand() % 5, rand() % 5 + 1);
+        for (int i = 0; i < ranges - 1; i++)
+        {
+            auto [last1, last2, last3] = vpii.back();
+            vpii.emplace_back(rand() % 30, last2 + last3 + rand() % 10, rand() % 5 + 1);
+        }
+        for (auto [a, b, c] : vpii)
+            cout << a << ' ' << b << ' ' << c << "\n";
+        cout << "-1 -1 -1\n";
+    }
 }
