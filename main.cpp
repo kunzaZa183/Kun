@@ -1,66 +1,48 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define int long long
-int32_t main()
+const int maxn = 250000;
+int arr[maxn];
+signed main()
 {
-    freopen("in.txt", "r", stdin);
-    freopen("out.txt", "w", stdout);
-    vector<pair<int, int>> allseeds;
-    int num = 0, range;
-    cin >> num >> range;
-    while (num != -1)
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 0; i < n; i++)
+        cin >> arr[i];
+    sort(arr, arr + n);
+    int minx = INT_MIN;
+    for (int i = 0; i < n; i++)
+        minx = max(minx, arr[i] - i);
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+        sum += arr[i];
+    int maxadd = 0;
+    int ans = 0;
+    for (int i = 0; i < n; i++)
     {
-        allseeds.emplace_back(num, num + range);
-        cin >> num >> range;
+        maxadd = max(maxadd, minx + i - arr[i]);
+        ans += minx + i - arr[i];
     }
-    sort(allseeds.begin(), allseeds.end());
-    for (int i = 0; i < 7; i++)
+
+    int l = 0, r = 1e13;
+    while (l < r)
     {
-        vector<tuple<int, int, int>> vtiii;
-        int a = 0, b = 0, c = 0;
-        while (cin >> a >> b >> c, a != -1)
-            vtiii.emplace_back(b, b + c, a);
-        sort(vtiii.begin(), vtiii.end());
-        vector<pair<int, int>> last;
-        for (auto &a : allseeds)
-        {
-            for (auto [source, end, dest] : vtiii)
-                if (source >= a.second)
-                    break;
-                else if (source >= a.first)
-                {
-                    if (end >= a.second)
-                    {
-                        last.emplace_back(dest, dest + a.second - source);
-                        a.second = source;
-                        break;
-                    }
-                    else if (end > a.first)
-                    {
-                        last.emplace_back(a.first, source);
-                        last.emplace_back(dest, dest + end - source);
-                        a.first = end;
-                    }
-                }
-                else if (source < a.first)
-                {
-                    if (end >= a.second)
-                    {
-                        last.emplace_back(dest + a.first - source, dest + a.second - source);
-                        a.first = a.second;
-                        break;
-                    }
-                    else if (end > a.first)
-                    {
-                        last.emplace_back(a.first - source + dest,dest + end - source);
-                        a.first = end;
-                    }
-                }
-            if (a.first != a.second)
-                last.push_back(a);
-        }
-        sort(last.begin(), last.end());
-        allseeds.swap(last);
-        cout << allseeds.front().first << '\n';
+        int mid = (l + r) / 2;
+        if (maxadd + mid <= (ans + mid * n) / m)
+            r = mid;
+        else
+            l = mid + 1;
     }
+    ans += l * n;
+    for (int i = 0; i < m; i++)
+        if (ans % m == 0)
+            break;
+        else
+            ans += n;
+    if (ans % m != 0)
+        cout << "-1\n";
+    else
+        cout << ans / m << '\n';
 }
