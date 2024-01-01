@@ -1,42 +1,49 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-const int dx[8] = {-2, -2, -1, 1, 2, 2, 1, -1}, dy[8] = {-1, 1, 2, 2, 1, -1, -2, -2};
-bool valid(int x, int y, int n)
-{
-    return x >= 0 && x < n && y >= 0 && y < n;
-}
-signed main()
+int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    int num;
-    cin >> num;
-    for (int i = 1; i <= num; i++)
+    string s;
+    cin >> s;
+    map<char, int> mci;
+    for (auto a : s)
+        mci[a]++;
+    int ct = 0;
+    for (auto a : mci)
+        if (a.second % 2 == 1)
+            ct++;
+    if (ct > 1)
     {
-        int all = i * i * (i * i - 1) / 2;
-        int hit = 0;
-        if (i <= 4)
-        {
-            for (int j = 0; j < i; j++)
-                for (int k = 0; k < i; k++)
-                    for (int l = 0; l < 8; l++)
-                        if (valid(dx[l] + j, dy[l] + k, i))
-                            hit++;
-            hit /= 2;
-        }
-        else
-        {
-            hit = (i - 4) * (i - 4) * 8;
-            hit += (4 * 2);
-            hit += (8 * 3);
-            hit += (i - 3) * 4 * 6;
-            hit += ((i * i) - (i - 4) * (i - 4) - 4 - 8 - (i - 3) * 4) * 6;
-            hit -= 8 * i;
-            hit /= 2;
-            hit += 12;
-        }
-        all -= hit;
-        cout << all << "\n";
+        cout << "NO SOLUTION\n";
+        return 0;
+    }
+
+    if (ct == 0)
+    {
+        string s1;
+        for (auto a : mci)
+            for (int i = 0; i < a.second / 2; i++)
+                s1.push_back(a.first);
+        cout << s1;
+        reverse(s1.begin(), s1.end());
+        cout << s1 << '\n';
+    }
+    else if (ct == 1)
+    {
+        pair<char, int> odd;
+        for (auto a : mci)
+            if (a.second % 2 == 1)
+                odd = a;
+        string s1;
+        for (auto a : mci)
+            if (a.second % 2 == 0)
+                for (int i = 0; i < a.second / 2; i++)
+                    s1.push_back(a.first);
+        cout << s1;
+        while (odd.second--)
+            cout << odd.first;
+        reverse(s1.begin(), s1.end());
+        cout << s1 << '\n';
     }
 }
