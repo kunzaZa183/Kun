@@ -1,51 +1,62 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-long long arr[355], qs[355], dp[355][355], trace[355][355];
-
-int search(int ni, int nj, int ii)
-{
-	while(true)
-	{
-		if(ni == ii) return nj - trace[ni][nj] + 1;
-		nj = trace[ni][nj]-1;
-		ni--;
-	}
-}
-
-void solve(int i, int m, int l, int r, int a, int b)
-{
-	if(l > r) return ;
-	int mid = (l+r)>>1;
-	dp[i][mid] = 1e15;
-	for(int k=a ; k<=min(b, mid) ; k++)
-	{
-		long long table = (i > m) ? search(i-1, k-1, 2*m+1-i) : 0;
-		if(dp[i-1][k-1] + (qs[mid]-qs[k-1])*(mid-k) + 2*table*(mid-k+1) < dp[i][mid])
-		{
-			dp[i][mid] = dp[i-1][k-1] + (qs[mid]-qs[k-1])*(mid-k) + 2*table*(mid-k+1);
-			trace[i][mid] = k;
-		}
-	}
-	solve(i, m, l, mid-1, a, trace[i][mid]);
-	solve(i, m, mid+1, r, trace[i][mid], b);
-}
-
+const int maxn = 350, BIGNUM = 1000000000;
+int dp[maxn + 1][maxn + 1], qsum[maxn + 1], trace[maxn + 1][maxn + 1];
 int main()
 {
-	int n, m;
-	scanf(" %d %d",&n,&m);
-	for(int i=1 ; i<=n ; i++)
-		scanf(" %lld",&arr[i]);
-	sort(arr+1, arr+n+1);
-	for(int i=1 ; i<=n ; i++)
-	{
-		qs[i] = arr[i] + qs[i-1];
-		dp[1][i] = qs[i] * (i-1);
-		trace[1][i] = 1;
-	}
-	for(int i=2 ; i<=m*2 ; i++)
-		solve(i, m, 1, n, 1, n);
-	printf("%lld\n",dp[2*m][n]);
-	return 0;
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++)
+        cin >> qsum[i];
+    sort(qsum + 1, qsum + n + 1);
+    for (int i = 1; i <= n; i++)
+        qsum[i] += qsum[i - 1];
+    for (int j = 1; j <= n; j++)
+    {
+        dp[1][j] = qsum[j] * (j - 1);
+        trace[1][j] = 0;
+    }
+    for (int i = 2; i <= m * 2; i++)
+        if (i <= m)
+        {
+            for (int j = i; j <= n; j++)
+            {
+                dp[i][j] = BIGNUM;
+                for (int k = i - 1; k <= j; k++)
+                {
+                    int tmp = dp[i - 1][k] + (qsum[j] - qsum[k]) * (j - k - 1);
+                    if (tmp < dp[i][j])
+                    {
+                        dp[i][j] = tmp;
+                        trace[i][j] = k;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int j = i; j <= n; j++)
+            {
+                dp[i][j] = BIGNUM;
+                for (int k = i - 1; k <= j; k++)
+                {
+                    int goback = 2 * (i - m - 1);
+                    int tmpi = i - 1, tmpj = k;
+                    while (goback--)
+                    {
+                        tmpj = trace[tmpi][tmpj];
+                        tmpi--;
+                    }
+                    int add = dp[i - 1][k] + (qsum[j] - qsum[k]) * (j - k - 1) + 2 * (j - k) * (tmpj - trace[tmpi][tmpj]);
+                    if (add < dp[i][j])
+                    {
+                        dp[i][j] = add;
+                        trace[i][j] = k;
+                    }
+                }
+            }
+        }
+    cout << dp[2 * m][n] << '\n';
 }
