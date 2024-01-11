@@ -1,33 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 200000;
-int arr[maxn];
+const int maxn = 100001;
+int canmod[maxn];
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    int n, x;
-    cin >> n >> x;
-    multiset<int> msi;
-    for (int i = 0; i < n; i++)
+    int tests;
+    cin >> tests;
+    while (tests--)
     {
-        int tmp;
-        cin >> tmp;
-        msi.insert(tmp);
-    }
-    int ct = 0;
-    while (!msi.empty())
-    {
-        auto it = msi.begin();
-        auto target = msi.upper_bound(x - *it);
-        if (target != msi.begin())
+        int n, m;
+        cin >> n >> m;
+        long long ans = 0;
+        for (int i = 1; i <= n; i++)
+            canmod[m % i]++;
+        for (int i = 1; i <= n; i++)
         {
-            target--;
-            if (target != msi.begin())
-                msi.erase(target);
+            canmod[m % i]--;
+            for (int j = m % i; j <= n; j += i)
+                ans += canmod[j];
         }
-        msi.erase(msi.begin());
-        ct++;
+        cout << ans << "\n";
     }
-    cout << ct << "\n";
 }
