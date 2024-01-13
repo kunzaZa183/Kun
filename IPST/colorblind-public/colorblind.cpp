@@ -1,6 +1,9 @@
 #include "colorblind.h"
 #include <bits/stdc++.h>
 using namespace std;
+
+string s;
+
 bool cmp(pair<int, vector<int>> a, pair<int, vector<int>> b)
 {
     return a.second.size() > b.second.size();
@@ -23,7 +26,7 @@ string investivate_colors(int N)
 
     pair<int, vector<int>> actual;
     if (vpivi.size() == 2)
-        actual = vpivi.front();
+        actual = vpivi[1];
     else if (vpivi.front().second.size() > vpivi[1].second.size())
         actual = vpivi.front();
     else if (vpivi.front().second.size() == vpivi[1].second.size())
@@ -36,16 +39,16 @@ string investivate_colors(int N)
         int sum = 0;
         for (int i = 0; i < 2 * N; i++)
             if (vi.empty())
-                vi.push_back(ans[i]);
+                vi.push_back(i);
             else if (ans[vi.back()] == ans[i])
-                vi.push_back(ans[i]);
+                vi.push_back(i);
             else if (ans[vi.back()] != ans[i])
             {
                 sum += i - vi.back();
                 vi.pop_back();
             }
 
-        for (auto &a : ans)
+        for (auto& a : ans)
             if (a == 'B')
                 a = 'R';
             else if (a == 'R')
@@ -59,9 +62,9 @@ string investivate_colors(int N)
         int sum2 = 0;
         for (int i = 0; i < 2 * N; i++)
             if (vi.empty())
-                vi.push_back(ans[i]);
+                vi.push_back(i);
             else if (ans[vi.back()] == ans[i])
-                vi.push_back(ans[i]);
+                vi.push_back(i);
             else if (ans[vi.back()] != ans[i])
             {
                 sum2 += i - vi.back();
