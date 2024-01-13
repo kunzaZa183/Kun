@@ -1,26 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
+const int maxn = 200000;
+int dsu[maxn];
+int find(int cur)
+{
+    if (dsu[cur] == cur)
+        return cur;
+    dsu[cur] = find(cur);
+    return dsu[cur];
+}
 int main()
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
-    string s;
-    cin >> s;
-    int arr[10];
-    for (int i = 0; i < s.size(); i++)
-        if (isdigit(s[i]))
-            arr[s[i] - '0' - 1] = 1;
-        else
-        {
-            arr[s[i + 1] - '0' - 1] = 0;
-            i++;
-        }
-    for (int i = 0; i < 10; i++)
+    int tests;
+    cin >> tests;
+    while (tests--)
     {
-        if (arr[i] == 1)
-            cout << "1";
-        else
-            cout << "-";
-        cout << " ";
+        int n, m;
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++)
+            dsu[i] = i;
+        for (int i = 0; i < m; i++)
+        {
+            int a, b;
+            cin >> a >> b;
+            dsu[find(a)] = find(b);
+        }
+        if (n >= 20)
+        {
+               
+        }
     }
 }
