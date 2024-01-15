@@ -1,94 +1,52 @@
 #include "colorblind.h"
 #include <bits/stdc++.h>
 using namespace std;
-
-string s;
-
-bool cmp(pair<int, vector<int>> a, pair<int, vector<int>> b)
+const string tmp = "RB";
+int findval(string &s)
 {
-    return a.second.size() > b.second.size();
+  for(auto a:s)
+}
+bool check(string s, vector<int> diff)
+{
+  int ct = 0;
+  for (auto a : s)
+    if (a == 'R')
+      ct++;
+    else if (a == 'B')
+      ct--;
+  while (ct > 0)
+  {
+    s.push_back('B');
+    ct--;
+  }
+  while (ct < 0)
+  {
+    s.push_back('R');
+    ct++;
+  }
+
 }
 string investivate_colors(int N)
 {
-    if (N == 1)
-        return "RB";
-    vector<int> vi(2 * N);
-    map<int, vector<int>> mii;
-    for (int i = 1; i < 2 * N; i++)
+  string ans;
+  ans.push_back('R');
+  vector<int> vi;
+  for (int i = 0; i < 3; i++)
+    for (int j = i + 1; j < 3; j++)
     {
-        vi[i] = use_device(0, i);
-        mii[vi[i]].push_back(i);
+      int x = use_device(i, j);
+      vi.push_back(x);
     }
-    vector<pair<int, vector<int>>> vpivi;
-    for (auto x : mii)
-        vpivi.emplace_back(x);
-    sort(vpivi.begin(), vpivi.end(), cmp);
-
-    pair<int, vector<int>> actual;
-    if (vpivi.size() == 2)
-        actual = vpivi[1];
-    else if (vpivi.front().second.size() > vpivi[1].second.size())
-        actual = vpivi.front();
-    else if (vpivi.front().second.size() == vpivi[1].second.size())
+  vector<int> diff;
+  for (int i = 0; i < vi.size(); i++)
+    diff.push_back(vi[i + 1] - vi[i]);
+  for (auto b : tmp)
+    for (auto a : tmp)
     {
-        string ans(2 * N, 'B');
-        for (auto a : vpivi.front().second)
-            ans[a] = 'R';
-        ans[0] = 'R';
-        vector<int> vi;
-        int sum = 0;
-        for (int i = 0; i < 2 * N; i++)
-            if (vi.empty())
-                vi.push_back(i);
-            else if (ans[vi.back()] == ans[i])
-                vi.push_back(i);
-            else if (ans[vi.back()] != ans[i])
-            {
-                sum += i - vi.back();
-                vi.pop_back();
-            }
+      ans.push_back(b);
+      ans.push_back(a);
 
-        for (auto& a : ans)
-            if (a == 'B')
-                a = 'R';
-            else if (a == 'R')
-                a = 'B';
-        vi.clear();
-        ans.clear();
-        ans.resize(2 * N, 'B');
-        for (auto a : vpivi[1].second)
-            ans[a] = 'R';
-        ans[0] = 'R';
-        int sum2 = 0;
-        for (int i = 0; i < 2 * N; i++)
-            if (vi.empty())
-                vi.push_back(i);
-            else if (ans[vi.back()] == ans[i])
-                vi.push_back(i);
-            else if (ans[vi.back()] != ans[i])
-            {
-                sum2 += i - vi.back();
-                vi.pop_back();
-            }
-
-        if (sum == sum2)
-        {
-            if (vpivi.front().first == sum)
-                actual = vpivi.front();
-            else
-                actual = vpivi[1];
-        }
-        else if (sum == vpivi.front().first)
-            actual = vpivi.front();
-        else if (sum2 == vpivi[1].first)
-            actual = vpivi[1];
+      ans.pop_back();
+      ans.pop_back();
     }
-
-    string ans(2 * N, 'B');
-    for (auto a : actual.second)
-        ans[a] = 'R';
-    ans[0] = 'R';
-    if (actual.second.size() == N)
-        ans[1] = 'B';
-    return ans;
 }
