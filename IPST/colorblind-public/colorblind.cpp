@@ -14,18 +14,30 @@ string investivate_colors(int N)
   for (int i = 0; i < vi.size(); i++)
     diff.push_back(vi[i + 1] - vi[0]);
   vector<int> ans;
+  int normal;
   if (diff == vector<int>{0, 0})
+  {
     ans = {1, 1, 1};
+    normal = vi[0];
+  }
   else if (diff == vector<int>{-2, -2})
+  {
     ans = {1, 1, -1};
+    normal = vi[0];
+  }
   else if (diff == vector<int>{0, 2})
+  {
     ans = {1, -1, 1};
+    normal = vi[1];
+  }
   else if (diff == vector<int>{2, 0})
+  {
     ans = {1, -1, -1};
+    normal = vi[2];
+  }
   int pref = 0;
   for (int i = 3; i < 2 * N; i++)
   {
     pref += ans[i - 3];
-    
   }
 }
