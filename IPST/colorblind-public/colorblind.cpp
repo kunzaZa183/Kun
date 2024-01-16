@@ -1,6 +1,7 @@
 #include "colorblind.h"
 #include <bits/stdc++.h>
 using namespace std;
+
 string investivate_colors(int N)
 {
   vector<int> vi;
@@ -11,7 +12,7 @@ string investivate_colors(int N)
       vi.push_back(x);
     }
   vector<int> diff;
-  for (int i = 0; i < vi.size(); i++)
+  for (int i = 0; i < vi.size() - 1; i++)
     diff.push_back(vi[i + 1] - vi[0]);
   vector<int> ans;
   int normal;
@@ -39,5 +40,70 @@ string investivate_colors(int N)
   for (int i = 3; i < 2 * N; i++)
   {
     pref += ans[i - 3];
+    if (ans[i - 1] == 1 && ans[i - 2] == 1)
+    {
+      int x;
+      if (pref >= 0)
+        x = use_device(i - 1, i);
+      else if (pref == -1)
+        x = use_device(i - 2, i);
+      else if (pref <= -2)
+        x = use_device(i - 2, i);
+      if (x == normal)
+        ans.push_back(1);
+      else
+        ans.push_back(-1);
+    }
+    else if (ans[i - 1] == -1 && ans[i - 2] == -1)
+    {
+      int x;
+      if (pref <= 0)
+        x = use_device(i - 1, i);
+      else if (pref == 1)
+        x = use_device(i - 2, i);
+      else if (pref >= 2)
+        x = use_device(i - 2, i);
+      if (x == normal)
+        ans.push_back(-1);
+      else
+        ans.push_back(1);
+    }
+    else if (ans[i - 1] == -1 && ans[i - 2] == 1)
+    {
+      int x;
+      if (pref >= 0)
+      {
+        x = use_device(i - 1, i);
+        x -= 2;
+      }
+      else if (pref <= -1)
+        x = use_device(i - 2, i);
+      if (x == normal)
+        ans.push_back(1);
+      else
+        ans.push_back(-1);
+    }
+    else if (ans[i - 1] == 1 && ans[i - 2] == -1)
+    {
+      int x;
+      if (pref <= 0)
+      {
+        x = use_device(i - 1, i);
+        x -= 2;
+      }
+      else if (pref >= 1)
+        x = use_device(i - 2, i);
+      if (x == normal)
+        ans.push_back(-1);
+      else
+        ans.push_back(1);
+    }
   }
+  string s;
+  for (auto a : ans)
+    if (a == 1)
+      s.push_back('R');
+    else if (a == -1)
+      s.push_back('B');
+  return s;
 }
