@@ -27,7 +27,6 @@ int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int n;
   cin >> n;
   int maxtype = -1;
   for (int i = 0; i < n; i++)
@@ -43,7 +42,9 @@ int main()
     all[type[i]].push_back(i);
   int in = 0;
   int sumall = accumulate(weight, weight + n, 0);
-  fill(dp, dp + n, BIGNUM);
+  for (int i = 0; i < n; i++)
+    for (int j = 0; j < 2; j++)
+      dp[i][j] = BIGNUM;
   for (auto a : all[1])
     dp[a][0] = 0;
   for (int i = 1; i < maxtype; i++)
@@ -54,11 +55,11 @@ int main()
     {
       for (int j = 1; j < all[i].size(); j++)
       {
-        dp[all[i][j - 1]][1] = min(dp[all[i][j - 1]][1], sumall - weight[all[i][j - 1]] + dp[all[i][j]][0]);
-        dp[all[i][j]][1] = min(dp[all[i][j]][1], sumall - weight[all[i][j - 1]] + dp[all[i][j - 1]][0]);
+        dp[all[i][j - 1]][1] = min(dp[all[i][j - 1]][1], sumall - sumright(all[i][j - 1], all[i][j]) + dp[all[i][j]][0]);
+        dp[all[i][j]][1] = min(dp[all[i][j]][1], sumall - sumright(all[i][j - 1], all[i][j]) + dp[all[i][j - 1]][0]);
       }
-      dp[all[i][0]][1] = min(dp[all[i][0]][1], sumall - weight[all[i].back()] + dp[all[i].back()][0]);
-      dp[all[i].back()][1] = min(dp[all[i].back()][1], sumall - weight[all[i].back()] + dp[all[i][0]][0]);
+      dp[all[i][0]][1] = min(dp[all[i][0]][1], sumall - sumright(all[i].back(), all[i][0]) + dp[all[i].back()][0]);
+      dp[all[i].back()][1] = min(dp[all[i].back()][1], sumall - sumright(all[i].back(), all[i][0]) + dp[all[i][0]][0]);
     }
 
     vector<int> twolevel;
@@ -75,7 +76,20 @@ int main()
       int cur = -1;
       for (auto a : twolevel)
         if (type[a] == i)
-          cur = a;
+        {
+          if (cur == -1)
+            cur = a;
+          else if (j == 0)
+          {
+            if (sumright(cur, a) + dp[cur][1] > dp[a][1])
+              cur = a;
+          }
+          else if (j == 1)
+          {
+            if (sumright(a, cur) + dp[cur][1] > dp[a][1])
+              cur = a;
+          }
+        }
         else if (cur != -1)
         {
           if (j == 0)
@@ -86,15 +100,18 @@ int main()
       reverse(twolevel.begin(), twolevel.end());
     }
   }
-
-  for (int j = 1; j < all[maxtype].size(); j++)
+  if (all[maxtype].size() == 1)
+    dp[all[maxtype][0]][1] = dp[all[maxtype][0]][0];
+  else
   {
-    dp[all[maxtype][j - 1]][1] = min(dp[all[maxtype][j - 1]][1], sumall - weight[all[maxtype][j - 1]] + dp[all[maxtype][j]][0]);
-    dp[all[maxtype][j]][1] = min(dp[all[maxtype][j]][1], sumall - weight[all[maxtype][j - 1]] + dp[all[maxtype][j - 1]][0]);
+    for (int j = 1; j < all[maxtype].size(); j++)
+    {
+      dp[all[maxtype][j - 1]][1] = min(dp[all[maxtype][j - 1]][1], sumall - sumright(all[maxtype][j - 1], all[maxtype][j]) + dp[all[maxtype][j]][0]);
+      dp[all[maxtype][j]][1] = min(dp[all[maxtype][j]][1], sumall - sumright(all[maxtype][j - 1], all[maxtype][j]) + dp[all[maxtype][j - 1]][0]);
+    }
+    dp[all[maxtype][0]][1] = min(dp[all[maxtype][0]][1], sumall - sumright(all[maxtype].back(), all[maxtype][0]) + dp[all[maxtype].back()][0]);
+    dp[all[maxtype].back()][1] = min(dp[all[maxtype].back()][1], sumall - sumright(all[maxtype].back(), all[maxtype][0]) + dp[all[maxtype][0]][0]);
   }
-  dp[all[maxtype][0]][1] = min(dp[all[maxtype][0]][1], sumall - weight[all[maxtype].back()] + dp[all[maxtype].back()][0]);
-  dp[all[maxtype].back()][1] = min(dp[all[maxtype].back()][1], sumall - weight[all[maxtype].back()] + dp[all[maxtype][0]][0]);
-
   int mini = INT_MAX;
   for (auto a : all[maxtype])
     mini = min(mini, dp[a][1]);
