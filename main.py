@@ -1,3 +1,2 @@
-x = 2**13607
-x = str(x)
-print(len(x))
+
+print(len(str((2 ** 60))))
