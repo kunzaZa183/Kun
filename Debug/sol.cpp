@@ -52,68 +52,26 @@ int main()
   for (int i = 1; i < maxtype; i++)
   {
     if (all[i].size() == 1)
-      dp[all[i][0]][1] = dp[all[i][0]][0];
+      dp[all[i].front()][1] = dp[all[i].front()][0];
     else
     {
-      for (int j = 1; j < all[i].size(); j++)
-      {
-        dp[all[i][j - 1]][1] = min(dp[all[i][j - 1]][1], sumall - sumright(all[i][j - 1], all[i][j]) + dp[all[i][j]][0]);
-        dp[all[i][j]][1] = min(dp[all[i][j]][1], sumall - sumright(all[i][j - 1], all[i][j]) + dp[all[i][j - 1]][0]);
-      }
-      dp[all[i][0]][1] = min(dp[all[i][0]][1], sumall - sumright(all[i].back(), all[i][0]) + dp[all[i].back()][0]);
-      dp[all[i].back()][1] = min(dp[all[i].back()][1], sumall - sumright(all[i].back(), all[i][0]) + dp[all[i][0]][0]);
+      for (auto a : all[i])
+        for (auto b : all[i])
+          if (a != b)
+            dp[b][1] = min(dp[b][1], dp[a][0] + min(sumright(a, b), sumright(b, a)));
     }
-
-    vector<int> twolevel;
     for (auto a : all[i])
-      twolevel.push_back(a);
-    for (auto a : all[i + 1])
-      twolevel.push_back(a);
-    sort(twolevel.begin(), twolevel.end());
-    int n = twolevel.size();
-    for (int j = 0; j < n; j++)
-      twolevel.push_back(twolevel[j]);
-
-    for (int j = 0; j < 2; j++)
-    {
-      int cur = -1;
-      for (auto a : twolevel)
-        if (type[a] == i)
-        {
-          if (cur == -1)
-            cur = a;
-          else if (j == 0)
-          {
-            if (sumright(cur, a) + dp[cur][1] > dp[a][1])
-              cur = a;
-          }
-          else if (j == 1)
-          {
-            if (sumright(a, cur) + dp[cur][1] > dp[a][1])
-              cur = a;
-          }
-        }
-        else if (cur != -1)
-        {
-          if (j == 0)
-            dp[a][0] = min(dp[a][0], dp[cur][1] + sumright(cur, a));
-          else if (j == 1)
-            dp[a][0] = min(dp[a][0], dp[cur][1] + sumright(a, cur));
-        }
-      reverse(twolevel.begin(), twolevel.end());
-    }
+      for (auto b : all[i + 1])
+        dp[b][0] = min(dp[b][0], dp[a][1] + min(sumright(a, b), sumright(b, a)));
   }
   if (all[maxtype].size() == 1)
-    dp[all[maxtype][0]][1] = dp[all[maxtype][0]][0];
+    dp[all[maxtype].front()][1] = dp[all[maxtype].front()][0];
   else
   {
-    for (int j = 1; j < all[maxtype].size(); j++)
-    {
-      dp[all[maxtype][j - 1]][1] = min(dp[all[maxtype][j - 1]][1], sumall - sumright(all[maxtype][j - 1], all[maxtype][j]) + dp[all[maxtype][j]][0]);
-      dp[all[maxtype][j]][1] = min(dp[all[maxtype][j]][1], sumall - sumright(all[maxtype][j - 1], all[maxtype][j]) + dp[all[maxtype][j - 1]][0]);
-    }
-    dp[all[maxtype][0]][1] = min(dp[all[maxtype][0]][1], sumall - sumright(all[maxtype].back(), all[maxtype][0]) + dp[all[maxtype].back()][0]);
-    dp[all[maxtype].back()][1] = min(dp[all[maxtype].back()][1], sumall - sumright(all[maxtype].back(), all[maxtype][0]) + dp[all[maxtype][0]][0]);
+    for (auto a : all[maxtype])
+      for (auto b : all[maxtype])
+        if (a != b)
+          dp[b][1] = min(dp[b][1], dp[a][0] + min(sumright(a, b), sumright(b, a)));
   }
   int mini = INT_MAX;
   for (auto a : all[maxtype])

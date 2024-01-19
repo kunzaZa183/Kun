@@ -1,17 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
+#define int long long
 const int maxn = 100000;
-bitset<maxn> dir;
-int arr[maxn], dsu[maxn];
-int other[maxn];
-int find(int cur)
-{
-  if (dsu[cur] == cur)
-    return cur;
-  dsu[cur] = find(dsu[cur]);
-  return dsu[cur];
-}
-int main()
+int arr[maxn], goright[maxn], goleft[maxn], dir[maxn];
+signed main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
@@ -27,23 +19,20 @@ int main()
     dir[n - 1] = 0;
     for (int i = 1; i < n - 1; i++)
       dir[i] = arr[i] - arr[i - 1] > arr[i + 1] - arr[i];
-    for (int i = 0; i < n; i++)
-      dsu[i] = i;
-    for (int i = 0; i < n; i++)
+    memset(goright, 0, sizeof goright);
+    memset(goleft, 0, sizeof goleft);
+    for (int i = 1; i < n - 1; i++)
       if (dir[i])
-        dsu[find(i)] = dsu[find(i + 1)];
+        goright[i] = arr[i + 1] - arr[i] - 1;
       else
-        dsu[find(i)] = dsu[find(i - 1)];
-    memset(other, -1, sizeof other);
-    for (int i = 0; i < n; i++)
-      if (find(i) == i)
-      {
-        if (dir[i])
-          other[i] = i + 1;
-        else
-          other[i] = i - 1;
-      }
-
+        goleft[i] = arr[i] - arr[i - 1] - 1;
+    goright[0] = arr[1] - arr[0] - 1;
+    goleft[n - 1] = arr[n - 1] - arr[n - 2] - 1;
+    for (int i = 1; i < n; i++)
+    {
+      goright[i] += goright[i - 1];
+      goleft[i] += goleft[i - 1];
+    }
     int qs;
     cin >> qs;
     while (qs--)
@@ -51,27 +40,10 @@ int main()
       int a, b;
       cin >> a >> b;
       a--, b--;
-      int ct = 0;
-    A:
       if (a < b)
-      {
-        if (dir[a])
-        {
-          a++;
-          ct++;
-          goto A;
-        }
-      }
+        cout << arr[b] - arr[a] - (goright[b - 1] - goright[a - 1]) << '\n';
       else if (b < a)
-      {
-        if (!dir[a])
-        {
-          a--;
-          ct++;
-          goto A;
-        }
-      }
-      cout << ct + abs(arr[a] - arr[b]) << '\n';
+        cout << arr[a] - arr[b] - (goleft[a] - goleft[b]) << "\n";
     }
   }
 }

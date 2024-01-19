@@ -67,6 +67,7 @@ int main()
       twolevel.push_back(a);
     for (auto a : all[i + 1])
       twolevel.push_back(a);
+    sort(twolevel.begin(), twolevel.end());
     int n = twolevel.size();
     for (int j = 0; j < n; j++)
       twolevel.push_back(twolevel[j]);
