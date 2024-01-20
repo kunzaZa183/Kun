@@ -1,65 +1,58 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxm = 1000000;
-pair<int, int> arr[maxm];
+const int maxn = 200000;
+int arr[2 * maxn], ct[maxn], inside[maxn];
+map<int, int> mii;
+queue<int> load[maxn];
 int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int n, d, m;
-  cin >> n >> d >> m;
+  int n, m, k;
+  cin >> n >> m >> k;
   for (int i = 0; i < n; i++)
   {
-    cin >> arr[i].first;
-    arr[i].first--;
-    arr[i].second = i;
+    cin >> arr[i];
+    arr[i]--;
+    ct[arr[i]]++;
   }
-  sort(arr, arr + m);
-  int l = 1, r = 2000000;
-  while (l < r)
-  {
-    int mid = (l + r) / 2;
-    int in = 0;
-    for (int i = 0; i < n; i++)
-    {
-      if (arr[in].first < i - d)
-        goto A;
-      int ct = 0;
-      while (ct < mid && in < m)
-      {
-        if (arr[in].first <= i)
-        {
-          ct++;
-          in++;
-        }
-        else
-          break;
-      }
-    }
-    if (in == m)
-    {
-      r = mid;
-      continue;
-    }
-  A:;
-    l = mid + 1;
-  }
-  cout << l << "\n";
-  int in2 = 0;
+  vector<int> loading /*indices*/;
+  queue<int> eaten;
+  int boxes = 0, curnotate = 0;
   for (int i = 0; i < n; i++)
-  {
-    int ct = 0;
-    while (ct < l && in2 < m)
+    if (inside[arr[i]] % k == 0)
     {
-      if (arr[in2].first <= i)
-      {
-        cout << arr[in2].second + 1 << ' ';
-        ct++;
-        in2++;
-      }
+      if (boxes == m)
+        eaten.push(i);
       else
-        break;
+      {
+        boxes++;
+        mii[arr[i]]++;
+        curnotate++;
+      }
     }
-    cout << "0\n";
+    else
+    {
+      load[arr[i]].push(i);
+      inside[arr[i]]++;
+      curnotate++;
+    }
+  for (int i = 0; i < n; i++)
+  {
+    mii[arr[i]]--;
+    curnotate -= min(k, ct[arr[i]]);
+    if (load[arr[i]].empty() && eaten.empty())
+    {
+    }
+    else if (load[arr[i]].empty())
+    {
+      curnotate -= min(k * mii[eaten.front()], ct[eaten.front()]);
+      mii[eaten.front()]++;
+      curnotate += min(k * mii[eaten.front()], ct[eaten.front()]);
+    }
+    else if(eaten.empty())
+    {
+      mii[arr[i]]++;
+    }
   }
 }
