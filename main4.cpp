@@ -1,45 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 1000;
-int arr[maxn];
+const int maxn = 200000;
+pair<int, int> arr[maxn];
 int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  freopen("race.in", "r", stdin);
-  freopen("race.out", "w", stdout);
-  int k, n;
-  cin >> k >> n;
+  int n;
+  cin >> n;
   for (int i = 0; i < n; i++)
-    cin >> arr[i];
-
+    cin >> arr[i].first >> arr[i].second;
+  sort(arr, arr + n, [](pair<int, int> a, pair<int, int> b)
+       { return a.second < b.second; });
+  int ct = 0;
+  int cur = -1;
   for (int i = 0; i < n; i++)
-  {
-    int curwalked = 0;
-    int mini = INT_MAX;
-    for (int speed = 1; 1; speed++)
+    if (arr[i].first >= cur)
     {
-      curwalked += speed;
-      int mightwalk = curwalked;
-      if (speed <= arr[i])
-      {
-        if (mightwalk > k)
-          break;
-        else
-          mini = min(mini, speed + (k - mightwalk + (speed - 1)) / speed);
-      }
-      else if (speed > arr[i])
-      {
-        int high = speed - 1;
-        int low = arr[i];
-        mightwalk += (high - low + 1) * (high + low) / 2;
-        if (mightwalk <= k)
-          mini = min(mini, speed + (speed - arr[i]) + (k - mightwalk + (speed - 1)) / speed);
-        else if (mightwalk > k)
-          break;
-      }
+      cur = arr[i].second;
+      ct++;
     }
-    cout << mini << '\n';
-  END:;
-  }
+  cout << ct << '\n';
 }
