@@ -6,7 +6,7 @@ int main()
   cin.tie(0);
   freopen("input.txt", "w", stdout);
   srand(time(NULL));
-  const int n = 10, maxtype = 4;
+  const int n = 5, maxtype = 2;
   cout << n << '\n';
   vector<int> vi;
   for (int i = 0; i < maxtype; i++)

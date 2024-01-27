@@ -66,10 +66,10 @@ int main()
     dp[all[maxtype].front()][1] = dp[all[maxtype].front()][0];
   else
   {
-      for (auto a : all[maxtype])
-        for (auto b : all[maxtype])
-          if (a != b)
-            dp[b][1] = min(dp[b][1], dp[a][0] + min(sumright(a, b), sumright(b, a)));
+    for (auto a : all[maxtype])
+      for (auto b : all[maxtype])
+        if (a != b)
+          dp[b][1] = min(dp[b][1], dp[a][0] + min(sumright(a, b), sumright(b, a)));
   }
   int mini = INT_MAX;
   for (auto a : all[maxtype])
