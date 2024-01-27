@@ -1,10 +1,12 @@
-#!/bin/bash
 kun=true
-g++ -o gen.exe gen.cpp
+# g++ -o gen.exe gen.cpp
+g++ -o specialgen.exe specialgen.cpp
 g++ -o sol.exe sol.cpp
 g++ -o correct.exe correct.cpp
 while $kun; do
-  ./gen.exe
+
+  # ./gen.exe
+  ./specialgen.exe
   ./sol.exe
   ./correct.exe
 
