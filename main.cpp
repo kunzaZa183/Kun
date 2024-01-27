@@ -1,37 +1,93 @@
 #include <bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
+using namespace __gnu_pbds;
 #define int long long
-const int maxn = 100000;
-int arr[maxn], goleft[maxn], goright[maxn];
-multiset<int> froml, fromr;
-int32_t main()
+
+const int arrsiz = 3e5;
+int seg[arrsiz * 4];
+pair<int, int> lazy[arrsiz * 4];
+int arr[arrsiz];
+
+void lazyv(int curin, int curl, int curr)
+{
+  if (lazy[curin] != make_pair(0LL, 0LL))
+  {
+    seg[curin] = (lazy[curin].first + lazy[curin].second) * (curr - curl + 1) / 2;
+    if (curl == curr)
+    {
+      lazy[curin] = {0LL, 0LL};
+      return;
+    }
+    int mid = (curl + curr) / 2;
+    int diff = (lazy[curin].second - lazy[curin].first) / (curr - curl);
+    if (curin * 2 + 1 < 4 * arrsiz)
+    {
+      lazy[curin * 2 + 1].first = lazy[curin].first;
+      lazy[curin * 2 + 1].second = (mid - curl) * diff + lazy[curin].first;
+    }
+    if (curin * 2 + 2 < 4 * arrsiz)
+    {
+      lazy[curin * 2 + 2].first = (mid - curl + 1) * diff + lazy[curin].first;
+      lazy[curin * 2 + 2].second = lazy[curin].second;
+    }
+    lazy[curin] = {0LL, 0LL};
+  }
+}
+
+void update(int curin, int curl, int curr, int ql, int qr, int start, int finish, int gap)
+{
+  lazyv(curin, curl, curr);
+  if (ql > curr || qr < curl)
+    return;
+  if (ql <= curl && curr <= qr)
+  {
+    lazy[curin] = {start, finish};
+    lazyv(curin, curl, curr);
+    return;
+  }
+  update(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr, start, (start + finish) / 2, gap);
+  update(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr, (start + finish) / 2 + gap, finish, gap);
+  seg[curin] = seg[curin * 2 + 1] + seg[curin * 2 + 2];
+}
+
+int query(int curin, int curl, int curr, int ql, int qr)
+{
+  lazyv(curin, curl, curr);
+  if (ql > curr || qr < curl)
+    return 0;
+  if (ql <= curl && curr <= qr)
+    return seg[curin];
+  return query(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr) + query(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr);
+}
+
+signed main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int tests;
-  cin >> tests;
-  while (tests--)
+  int n, m, q;
+  cin >> n >> m >> q;
+  tree<int, int, less<int>, rb_tree_tag, tree_order_statistics_node_update> tii;
+  for (int i = 0; i < m; i++)
   {
-    int n;
-    cin >> n;
-    for (int i = 0; i < n; i++)
-      cin >> arr[i];
-    for (int i = 0; i < n; i++)
-    {
-      goleft[i] = arr[i] - (n - i);
-      goright[i] = arr[i] - (i + 1);
-    }
-    froml.clear(), fromr.clear();
-    froml.insert(goleft[0]);
-    for (int i = 2; i < n; i++)
-      fromr.insert(goright[i]);
-    int maxi = INT_MIN;
-    for (int i = 1; i < n - 1; i++)
-    {
-      maxi = max(maxi, arr[i] + *froml.rbegin() + *fromr.rbegin());
-      froml.insert(goleft[i]);
-      fromr.erase(fromr.find(goright[i + 1]));
-    }
-    cout << maxi + n + 1 << "\n";
+    int x;
+    cin >> x;
+    x--;
+    tii.insert(make_pair(x, 0));
   }
+  for (int i = 0; i < m; i++)
+  {
+    int x;
+    cin >> x;
+    tii.find_by_order(i)->second = x;
+  }
+  auto it =tii.begin(),it2 = tii.begin();
+  it2++;
+  while (it2!=tii.end())
+  {
+    int dist = it->second -(it->first + 1);
+    update(0,0,n-1,it->first + 1,it->second,dist * (dist),0)
+  }
+  
 }
