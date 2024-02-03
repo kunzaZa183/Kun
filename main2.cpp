@@ -1,61 +1,66 @@
 #include <bits/stdc++.h>
 using namespace std;
+const int maxn = 1000;
+struct bomb
+{
+  int x, y, radius;
+  int begin, end;
+} allbomb[maxn];
+int segtree[4 * maxn][4 * maxn];
+int n, m;
+void updatey(int inx, int curiny, int curl, int curr, int lefty, int righty)
+{
+  if (curr < lefty && righty < curl)
+    return;
+  if (lefty <= curl && curr <= righty)
+  {
+    segtree[inx][curiny] = (curr - curl + 1);
+    return;
+  }
+  updatey(inx, curiny * 2, curl, (curl + curr) / 2, lefty, righty);
+  updatey(inx, curiny * 2 + 1, (curl + curr) / 2 + 1, curr, lefty, righty);
+  segtree[inx][curiny] = segtree[inx][curiny * 2] + segtree[inx][curiny * 2 + 1];
+}
+void updatex(int curin, int curl, int curr, int leftx, int rightx, int topy, int boty)
+{
+  if (curr < leftx || curl > rightx)
+    return;
+  if (leftx <= curl && curr <= rightx)
+  {
+    updatey(curin, 1, 0, m - 1, topy, boty);
+    segtree[curin][0] = segtree[curin][1] + segtree[curin * 2 + 1][0] + segtree[curin * 2 + 2][0];
+    return;
+  }
+  updatex(curin * 2 + 1, curl, (curl + curr) / 2, leftx, rightx, topy, boty);
+  updatex(curin * 2 + 2, (curl + curr) / 2 + 1, curr, leftx, rightx, topy, boty);
+  segtree[curin][0] = segtree[curin][1] + segtree[curin * 2 + 1][0] + segtree[curin * 2 + 2][0];
+}
 int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  string s;
-  cin >> s;
-  string order;
-  string ourstack;
-  for (int i = s.size() - 1; i >= 0; i--)
-    if (s[i] == ')')
-      ourstack.push_back(')');
-    else if (s[i] == '(')
-    {
-      string tmp;
-      while (ourstack.back() != ')')
-      {
-        tmp.push_back(ourstack.back());
-        ourstack.pop_back();
-      }
-      ourstack.pop_back();
-      for (int j = tmp.size() - 1; j >= 0; j--)
-        order.push_back(tmp[j]);
-    }
-    else if (s[i] == '|')
-    {
-      while (!ourstack.empty())
-        if (ourstack.back() == '|')
-        {
-          order.push_back('|');
-          ourstack.pop_back();
-          break;
-        }
-        else if (ourstack.back() == '&')
-        {
-          order.push_back('&');
-          ourstack.pop_back();
-        }
-        else
-          break;
-      ourstack.push_back('|');
-    }
-    else if (s[i] == '&')
-    {
-      if (ourstack.empty())
-        ourstack.push_back('&');
-      else if (ourstack.back() == '&')
-        order.push_back('&');
-      else
-        ourstack.push_back('&');
-    }
-  for (int i = ourstack.size() - 1; i >= 0; i--)
-    order.push_back(ourstack[i]);
-  for (int i = 0; i < order.size(); i++)
+  int tests;
+  cin >> tests;
+  while (tests--)
   {
-    if (i != 0)
-      cout << " ";
-    cout << order[i];
+    memset(segtree, 0, sizeof segtree);
+    cin >> n >> m;
+    int k;
+    cin >> k;
+    int reached = 100000;
+    for (int i = 0; i < k; i++)
+    {
+      int x, y, r;
+      cin >> x >> y >> r;
+      updatex(0, 0, n - 1, x - r, x + r, y - r, y + r);
+      if (segtree[0][0] == n * m)
+      {
+        reached = min(reached, i);
+      }
+    }
+    if (reached == 100000)
+      cout << "-1\n";
+    else
+      cout << reached << '\n';
   }
 }
