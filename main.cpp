@@ -3,7 +3,7 @@ using namespace std;
 #define int long long
 const int maxn = 200000;
 int arr[maxn];
-int main()
+int32_t main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
@@ -16,35 +16,33 @@ int main()
     for (int i = 0; i < n; i++)
       cin >> arr[i];
     sort(arr, arr + n);
-    int l = 1, r = 1e11;
+    int l = 1, r = n;
     while (l < r)
     {
       int mid = (l + r) / 2;
-      int ct = 0;
-      for (int i = 0; i < n; i++)
-        if (arr[i] > mid)
-        {
-          ct++;
-        }
-      int total = 0;
-      int maxi = 1;
-      for (int i = 1; 1; i++)
-      {
-        total += i;
-        if (total > mid)
-        {
-          total -= i;
-          maxi = i;
-          break;
-        }
-      }
       vector<int> vi;
-      while (total != 0)
+      int total = mid;
+      int tmpmid = mid;
+      while (tmpmid > 0)
       {
         vi.push_back(total);
-        total -= maxi++;
+        tmpmid--;
+        total += tmpmid;
       }
-      
+      bool pass = 0;
+      for (int i = 0; i < n - 1; i++)
+      {
+        if (pass)
+          break;
+        int pos = i - (upper_bound(vi.begin(), vi.end(), arr[i]) - vi.begin());
+        if (pos == n - mid - 1)
+          pass = 1;
+      }
+      if (pass)
+        r = mid;
+      else
+        l = mid + 1;
     }
+    cout << min(arr[n - 1], l * (l + 1) / 2) << "\n";
   }
 }
