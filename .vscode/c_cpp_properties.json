@@ -15,10 +15,8 @@
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "${default}",
-            "compilerArgs": [
-                "--disable-multilib"
-            ]
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerArgs": []
         }
     ],
     "version": 4
