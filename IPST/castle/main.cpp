@@ -106,6 +106,7 @@ node* arrnode[maxn];
 
 int main()
 {
+  freopen("sol.txt","w",stdout);
   castle_init(N, M, Q, Y);
   castle_read_map(A, B);
 
@@ -149,7 +150,7 @@ int main()
     if (T == 1)
     {
       if (bsm[X])
-        special.erase(find(special.begin(), special.end(), make_pair(A[X], B[X])));
+        special.erase(find(special.begin(), special.end(), make_pair(mapped[A[X]], mapped[B[X]])));
       else
       {
         int a = mapped[A[X]], b = mapped[B[X]];
