@@ -1,9 +1,11 @@
 kun=true
-# g++ -o gen.exe gen.cpp
+problem=castle
+
+g++ -std=gnu++17 -O2 -pipe -o main.exe main.cpp $problem.cpp
+g++ -std=gnu++17 -O2 -pipe -o brute.exe brute.cpp $problem.cpp
 g++ -o gen.exe gen.cpp
 while $kun; do
 
-  # ./gen.exe
   ./gen.exe
   ./main.exe
   ./brute.exe

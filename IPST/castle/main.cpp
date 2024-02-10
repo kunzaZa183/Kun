@@ -18,7 +18,7 @@ int find(int cur)
 
 vector<pair<int, int>> special;
 vector<int> adjlist[maxn];
-int mapped[maxn], depth[maxn];
+int mapped[maxn], depth[maxn],end[maxn];
 bitset<maxm> bsm;
 
 int visiti = 0;
@@ -30,6 +30,7 @@ void dfs(int cur, int par, int d)
   for (auto a : adjlist[cur])
     if (a != par)
       dfs(a, cur, d + 1);
+  ::end[mapped[cur]] = visiti;
 }
 
 set<int> newadj[maxn];
@@ -106,7 +107,7 @@ node* arrnode[maxn];
 
 int main()
 {
-  freopen("sol.txt","w",stdout);
+  // freopen("sol.txt","w",stdout);
   castle_init(N, M, Q, Y);
   castle_read_map(A, B);
 
@@ -160,7 +161,7 @@ int main()
         auto it = newadj[a].upper_bound(b);
         int left = b - 1, right;
         if (it == newadj[a].end())
-          right = INT_MAX;
+          right = ::end[a] - 1;
         else
           right = *it - 1;
         tmp = ::head(arrnode[a]);
