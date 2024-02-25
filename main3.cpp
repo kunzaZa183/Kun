@@ -2,11 +2,13 @@
 using namespace std;
 int main()
 {
-  int x;
-  cin >> x;
-  if (x == 4)
-    cout << "9 9\n11 11\n1 1\n3 3\n";
-  else if (x == 2)
-    cout << "1 1 3 3\n7 2 2 7\n";
-  cout
+  cin.tie(0)->sync_with_stdio(0);
+  cin.exceptions(cin.failbit);
+  unordered_map<int,int> ctMp;
+  ctMp.emplace(1,2);
+  ctMp.emplace(2,3);
+  ctMp.emplace(0,4);
+  vector<pair<int, int>> sortedPairs(ctMp.begin(), ctMp.end());
+  sort(sortedPairs.begin(), sortedPairs.end(), [](const auto &a, const auto &b)
+       { return a.second > b.second; });
 }
