@@ -1,2 +1,1 @@
-
-print(len(str((2 ** 60))))
+print(2**62)
