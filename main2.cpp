@@ -1,47 +1,49 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <vector>
 using namespace std;
-#define int long long
-const int maxn = 301, MOD = 1e9 + 7, height = 9;
-int arr[maxn], dp[maxn][maxn][height];
-int diff, k;
-int recur(int l, int r, int cur)
+string all[9] = {"ABDE", "ABC", "BCEF", "ADG", "BDEFH", "CFI", "DEGH", "GHI", "EFHI"};
+int arr[9] = {}, sth[9];
+vector<int> res;
+int len = 30000;
+void recur(int in)
 {
-  if (l == r)
-    return 0;
-  if (cur == k - 1)
-    return 1;
-  if (dp[l][r][cur] == -1)
+  if (in == 9)
   {
-    // can be 0
-    int curl = 0;
-    int curr = accumulate(arr + l, arr + r, 0ll);
-    dp[l][r][cur] = 0;
-    if (abs(curl - curr) <= diff)
+    int tmp[9];
+    for (int i = 0; i < 9; i++)
+      tmp[i] = arr[i];
+    for (int i = 0; i < 9; i++)
+      for (int j = 0; j < all[i].size(); j++)
+        tmp[all[i][j] - 'A'] += sth[i];
+    for (int i = 0; i < 9; i++)
+      if (tmp[i] % 4 != 0)
+        return;
+    vector<int> all;
+    for (int i = 0; i < 9; i++)
+      for (int j = 0; j < sth[i]; j++)
+        all.push_back(i + 1);
+    if (all.size() < len)
     {
-      dp[l][r][cur] += recur(l, l, cur + 1) * recur(l, r, cur + 1) % MOD;
-      dp[l][r][cur] %= MOD;
+      res = all;
+      len = all.size();
     }
-    for (int i = l; i < r; i++)
-    {
-      curl += arr[i];
-      curr -= arr[i];
-      if (abs(curl - curr) <= diff)
-      {
-        dp[l][r][cur] += recur(l, i + 1, cur + 1) * recur(i + 1, r, cur + 1) % MOD;
-        dp[l][r][cur] %= MOD;
-      }
-    }
+    return;
   }
-  return dp[l][r][cur];
+  for (int i = 0; i < 4; i++)
+  {
+    sth[in] = i;
+    recur(in + 1);
+  }
 }
-signed main()
+int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int n;
-  cin >> n >> k >> diff;
-  for (int i = 0; i < n; i++)
+  for (int i = 0; i < 9; i++)
     cin >> arr[i];
-  memset(dp, -1, sizeof dp);
-  cout << recur(0, n, 0) << "\n";
+  recur(0);
+  for (int i = 0; i < res.size(); i++)
+    cout << res[i] << ' ';
+  cout << "\n";
 }
