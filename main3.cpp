@@ -1,14 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
+vector<vector<int>> vvi;
 int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  unordered_map<int,int> ctMp;
-  ctMp.emplace(1,2);
-  ctMp.emplace(2,3);
-  ctMp.emplace(0,4);
-  vector<pair<int, int>> sortedPairs(ctMp.begin(), ctMp.end());
-  sort(sortedPairs.begin(), sortedPairs.end(), [](const auto &a, const auto &b)
-       { return a.second > b.second; });
+  int n;
+  cin >> n;
+  vvi.resize(n, vector<int>(n, 0));
+  for (int i = 0; i < n; i++)
+    cin >> vvi[0][i];
+  for (int i = 1; i < n; i++)
+    for (int j = i; j < n; j++)
+      vvi[i][j] = min(vvi[i - 1][j], vvi[i - 1][j - 1]) + vvi[0][j];
+  int qs;
+  cin >> qs;
+  while (qs--)
+  {
+    int a, b;
+    cin >> a >> b;
+    cout << vvi[a - 1][b - 1] << "\n";
+  }
 }

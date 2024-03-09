@@ -1,49 +1,75 @@
-#include <iostream>
-#include <string>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
-string all[9] = {"ABDE", "ABC", "BCEF", "ADG", "BDEFH", "CFI", "DEGH", "GHI", "EFHI"};
-int arr[9] = {}, sth[9];
-vector<int> res;
-int len = 30000;
-void recur(int in)
+#define int long long
+const int maxn = 100002;
+pair<int, int> lichao[8 * maxn];
+int arr[maxn], allq[maxn];
+vector<pair<int, int>> eachquery[maxn];
+int findval(pair<int, int> a, int b)
 {
-  if (in == 9)
-  {
-    int tmp[9];
-    for (int i = 0; i < 9; i++)
-      tmp[i] = arr[i];
-    for (int i = 0; i < 9; i++)
-      for (int j = 0; j < all[i].size(); j++)
-        tmp[all[i][j] - 'A'] += sth[i];
-    for (int i = 0; i < 9; i++)
-      if (tmp[i] % 4 != 0)
-        return;
-    vector<int> all;
-    for (int i = 0; i < 9; i++)
-      for (int j = 0; j < sth[i]; j++)
-        all.push_back(i + 1);
-    if (all.size() < len)
-    {
-      res = all;
-      len = all.size();
-    }
-    return;
-  }
-  for (int i = 0; i < 4; i++)
-  {
-    sth[in] = i;
-    recur(in + 1);
-  }
+	return a.first * b + a.second;
 }
-int main()
+void update(int curin, int curl, int curr, int ql, int qr, pair<int, int> line)
 {
-  cin.tie(0)->sync_with_stdio(0);
-  cin.exceptions(cin.failbit);
-  for (int i = 0; i < 9; i++)
-    cin >> arr[i];
-  recur(0);
-  for (int i = 0; i < res.size(); i++)
-    cout << res[i] << ' ';
-  cout << "\n";
+	if (qr < curl || ql > curr)
+		return;
+	if (curl == curr)
+	{
+		if (findval(line, curl) < findval(lichao[curin], curl))
+			lichao[curin] = line;
+		return;
+	}
+	if (ql <= curl && curr <= qr)
+	{
+		int mid = (curl + curr) / 2;
+		if (lichao[curin].first > line.first)
+			swap(lichao[curin], line);
+		if (findval(lichao[curin], mid) <= findval(line, mid))
+			update(curin * 2 + 1, curl, mid, ql, qr, line);
+		else
+		{
+			swap(lichao[curin], line);
+			update(curin * 2 + 2, mid + 1, curr, ql, qr, line);
+		}
+		return;
+	}
+	update(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr, line);
+	update(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr, line);
+}
+int query(int curin, int curl, int curr, int in)
+{
+	if (in < curl || in > curr)
+		return INT_MAX;
+	if (curl == curr)
+		return findval(lichao[curin], in);
+	return min(findval(lichao[curin], in), min(query(curin * 2 + 1, curl, (curl + curr) / 2, in), query(curin * 2 + 2, (curl + curr) / 2 + 1, curr, in)));
+}
+int32_t main()
+{
+	cin.tie(0)->sync_with_stdio(0);
+	cin.exceptions(cin.failbit);
+	int n;
+	cin >> n;
+	fill(lichao, lichao + 8 * maxn, make_pair(INT_MAX, INT_MAX));
+	for (int i = 0; i < n; i++)
+		cin >> arr[i];
+	int qs;
+	cin >> qs;
+	for (int i = 0; i < qs; i++)
+	{
+		int a, b;
+		cin >> a >> b;
+		b--;
+		eachquery[b].emplace_back(a, i);
+	}
+	int curheight = arr[0];
+	for (int i = 0; i < n; i++)
+	{
+		curheight -= arr[i];
+		update(0, 0, 2 * n - 1, n - i - 1, 2 * n - 1, { arr[i], curheight - arr[i] * (n - i - 1) });
+		for (auto a : eachquery[i])
+			allq[a.second] = query(0, 0, 2 * n - 1, n - i + a.first - 1) - curheight;
+	}
+	for (int i = 0; i < qs; i++)
+		cout << allq[i] << '\n';
 }
