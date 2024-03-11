@@ -1,77 +1,135 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-const int maxn = 100000;
-pair<int, int> lichao[8 * maxn];
-int arr[maxn], allq[maxn];
-vector<pair<int, int>> eachquery[maxn];
-int findval(pair<int, int> a, int b)
+const int maxn = 300000;
+int arr[maxn], ans[maxn];
+vector<pair<int, int>> vpii;
+int val;
+int exists(set<int> &target)
 {
-  return a.first * b + a.second;
+  auto it = target.lower_bound(val);
+  if (it == target.begin() || it == target.end())
+    return INT_MAX;
+  auto it2 = it;
+  it2--;
+  return *it - *it2 + 1;
 }
-void update(int curin, int curl, int curr, int ql, int qr, pair<int, int> line)
+int checkbef(set<int> &idk, int in)
 {
-  if (qr < curl || ql > curr)
-    return;
-  if (curl == curr)
-  {
-    if (findval(line, curl) < findval(lichao[curin], curl))
-      lichao[curin] = line;
-    return;
-  }
-  if (ql <= curl && curr <= qr)
-  {
-    int mid = (curl + curr) / 2;
-    if (lichao[curin].first > line.first)
-      swap(lichao[curin], line);
-    if (findval(lichao[curin], curl) <= findval(line, curl))
-      update(curin * 2 + 1, curl, mid, ql, qr, line);
-    else
-    {
-      swap(lichao[curin], line);
-      update(curin * 2 + 2, mid + 1, curr, ql, qr, line);
-    }
-    return;
-  }
-  update(curin * 2 + 1, curl, (curl + curr) / 2, ql, qr, line);
-  update(curin * 2 + 2, (curl + curr) / 2 + 1, curr, ql, qr, line);
+  auto it = idk.lower_bound(in);
+  if (it == idk.begin())
+    return INT_MAX;
+  it--;
+  return in - *it + 1;
 }
-int query(int curin, int curl, int curr, int in)
+int checkaft(set<int> &idk, int in)
 {
-  if (in < curl || in > curr)
-    return LLONG_MAX;
-  if (curl == curr)
-    return findval(lichao[curin], in);
-  return min(findval(lichao[curin], in), min(query(curin * 2 + 1, curl, (curl + curr) / 2, in), query(curin * 2 + 2, (curl + curr) / 2 + 1, curr, in)));
+  auto it = idk.lower_bound(in);
+  if (it == idk.end())
+    return INT_MAX;
+  return *it + 1 - in + 1;
 }
-int32_t main()
+int cur[maxn];
+int main()
 {
-  freopen("input.txt", "r", stdin);
-  freopen("output.txt", "w", stdout);
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
   int n;
   cin >> n;
-  fill(lichao, lichao + 8 * maxn, make_pair(INT_MAX, INT_MAX));
+  set<int> oddmore, oddless, evenless, evenmore;
   for (int i = 0; i < n; i++)
+  {
     cin >> arr[i];
-  int qs;
-  cin >> qs;
-  for (int i = 0; i < qs; i++)
-  {
-    int a, b;
-    cin >> a >> b;
-    b--;
-    eachquery[b].emplace_back(a, i);
+    vpii.emplace_back(arr[i], i);
+    if (i % 2 == 0)
+      evenmore.insert(i);
+    else
+      oddmore.insert(i);
+    cur[i] = 1;
   }
-  int curheight = arr[0];
+
+  set<int> nextevenmore, nextevenless, nextoddmore, nextoddless;
+  sort(vpii.begin(), vpii.end());
+  for (int i = 0; i < n - 1; i++)
+    if (i % 2 == 0)
+      nextevenmore.insert(i);
+    else
+      nextoddmore.insert(i);
+
+  for (auto a : vpii)
+  {
+    val = a.second;
+    if (a.second % 2 == 0)
+      evenmore.erase(a.second);
+    else
+      oddmore.erase(a.second);
+    ans[a.second] = min(min(exists(evenmore), exists(oddmore)), min(exists(evenless), exists(oddless)));
+    // if (a.first == 7)
+    // {
+    //   cout << exists(evenmore) << ' ' << exists(oddmore) << " " << exists(evenless) << " " << exists(oddless) << "\n";
+    // }
+    if (a.second % 2 == 0)
+      evenless.insert(a.second);
+    else
+      oddless.insert(a.second);
+    if (a.second != 0)
+    {
+      if (cur[a.second - 1] == 1)
+      {
+        if ((a.second - 1) % 2 == 0)
+          nextevenmore.erase(a.second - 1);
+        else
+          nextoddmore.erase(a.second - 1);
+      }
+    }
+    if (a.second != n - 1)
+    {
+      if (cur[a.second + 1] == 1)
+      {
+        if (a.second % 2 == 0)
+          nextevenmore.erase(a.second);
+        else
+          nextoddmore.erase(a.second);
+      }
+    }
+    if (a.second % 2 == 0)
+    {
+      ans[a.second] = min(ans[a.second], min(checkbef(nextevenless, a.second), checkbef(nextevenmore, a.second)));
+      ans[a.second] = min(ans[a.second], min(checkaft(nextoddless, a.second), checkaft(nextoddmore, a.second)));
+    }
+    else
+    {
+      ans[a.second] = min(ans[a.second], min(checkaft(nextevenless, a.second), checkaft(nextevenmore, a.second)));
+      ans[a.second] = min(ans[a.second], min(checkbef(nextoddless, a.second), checkbef(nextoddmore, a.second)));
+    }
+
+    if (a.second != 0)
+    {
+      if (cur[a.second - 1] == -1)
+      {
+        if ((a.second - 1) % 2 == 0)
+          nextevenless.insert(a.second - 1);
+        else
+          nextoddless.insert(a.second - 1);
+      }
+    }
+    if (a.second != n - 1)
+    {
+      if (cur[a.second + 1] == -1)
+      {
+        if (a.second % 2 == 0)
+          nextevenless.insert(a.second);
+        else
+          nextoddless.insert(a.second);
+      }
+    }
+    cur[a.second] = -1;
+  }
   for (int i = 0; i < n; i++)
-  {
-    curheight -= arr[i];
-    update(0, 0, 2 * n - 1, n - i - 1, 2 * n - 1, {arr[i], curheight - arr[i] * (n - i - 1)});
-    for (auto a : eachquery[i])
-      allq[a.second] = query(0, 0, 2 * n - 1, n - i + a.first - 1) - curheight;
-  }
-  for (int i = 0; i < qs; i++)
-    cout << allq[i] << '\n';
+    if (ans[i] == INT_MAX)
+      cout << "-1 ";
+    else
+      cout << ans[i] << " ";
+  cout << "\n";
 }

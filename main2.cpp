@@ -1,54 +1,57 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int maxn = 200000;
-int arr[maxn], heavy[maxn], parent[maxn], head[maxn], siz[maxn];
-vector<int> adjlist[maxn];
-int dfs(int cur, int par)
+#define int long long
+const int maxn = 100000;
+struct edge
 {
-  siz[cur] = 1;
-  parent[cur] = par;
-  for (auto a : adjlist[cur])
-    if (a != par)
-      siz[cur] += dfs(a, cur);
-  return siz[cur];
-}
-void dfs2(int cur, int hd)
+  int a, b, weight;
+  edge(int x, int y, int z)
+  {
+    a = x, b = y, weight = z;
+  }
+  bool operator<(edge x) const
+  {
+    return weight > x.weight;
+  }
+};
+int dsu[maxn];
+priority_queue<edge> pqe;
+int find(int x)
 {
-  head[cur] = hd;
-  int maxid = -1, maxnum = 0;
-  for (auto a : adjlist[cur])
-    if (a != parent[cur])
-      if (siz[a] > maxnum)
-      {
-        maxid = a;
-        maxnum = siz[a];
-      }
-  heavy[cur] = maxid;
-  for (auto a : adjlist[cur])
-    if (a != parent[cur])
-    {
-      if (a == heavy[cur])
-        dfs2(a, hd);
-      else
-        dfs2(a, a);
-    }
+  if (dsu[x] == x)
+    return dsu[x];
+  dsu[x] = find(dsu[x]);
+  return dsu[x];
 }
-int main()
+int32_t main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int n, qs;
-  cin >> n >> qs;
+  int n, m;
+  cin >> n >> m;
   for (int i = 0; i < n; i++)
-    cin >> arr[i];
-  for (int i = 0; i < n - 1; i++)
+    dsu[i] = i;
+  for (int i = 0; i < m; i++)
   {
-    int a, b;
-    cin >> a >> b;
-    adjlist[a - 1].push_back(b - 1), adjlist[b - 1].push_back(a - 1);
+    int a, b, c;
+    cin >> a >> b >> c;
+    pqe.emplace(a, b, c);
   }
-  dfs(0, 0);
-  while (qs--)
+  int sum = 0;
+  int edges = 0;
+  while (!pqe.empty())
   {
+    edge tmp = pqe.top();
+    pqe.pop();
+    if (find(tmp.a) != find(tmp.b))
+    {
+      sum += tmp.weight;
+      dsu[find(tmp.a)] = dsu[find(tmp.b)];
+      edges++;
+    }
   }
+  if (edges == n - 1)
+    cout << sum << "\n";
+  else
+    cout << "IMPOSSIBLE\n";
 }
