@@ -4,8 +4,8 @@ int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  list<int> li;
-  li.push_back(1);
-  li.insert(li.end(), 2);
-  cout << li.back() << "\n";
+  mt19937 mt(time(NULL));
+  cout << mt();
+  vector<int> vi;
+  shuffle(vi.begin(), vi.end(), mt);
 }

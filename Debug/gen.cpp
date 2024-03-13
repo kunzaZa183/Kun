@@ -9,13 +9,24 @@ int main()
   freopen("input.txt", "w", stdout);
   srand(time(NULL));
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  const int n = 8;
-  vector<int> vi;
-  for (int i = 0; i < n; i++)
-    vi.push_back(i + 1);
-  shuffle(vi.begin(), vi.end(), default_random_engine(seed));
-  cout << n << "\n";
-  for (int i = 0; i < n; i++)
-    cout << vi[i] << ' ';
-  cout << "\n";
+  const int n = 100000, qs = 100000;
+  cout << n << ' ' << qs << "\n";
+  vector<int> vi(n);
+  for (int i = 1; i < n; i++)
+  {
+    vi[i] = rand() % i;
+    cout << vi[i] + 1 << " " << i + 1 << "\n";
+  }
+  for (int i = 0; i < qs; i++)
+  {
+    int type = rand() % 2 + 1;
+    cout << type << " ";
+    if (type == 1)
+    {
+      int in = rand() % n, len = rand() % 6;
+      cout << in + 1 << " " << len << "\n";
+    }
+    else
+      cout << rand() % n + 1 << "\n";
+  }
 }

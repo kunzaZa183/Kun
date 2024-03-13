@@ -1,130 +1,177 @@
 #include <bits/stdc++.h>
+#define ll long long
+#define pii pair<int, int>
+#define pll pair<ll, ll>
+#define all(x) x.begin(), x.end()
+#define pb push_back
+#define sz(x) (int)x.size()
+#define f first
+#define s second
 using namespace std;
-using ll = long long;
-const int N = 300300;
-const int K = 20;
-int a[N], d1[N], d2[N];
-int ans[N];
-int dp1[K + 1][N], dp2[K + 1][N];
-int query1(int l, int r)
+const int N = 1e5 + 5;
+vector<int> g[N];
+int pr[N], sz[N], d[N][20], lv[N]{0};
+bool vis[N]{0};
+int getsize(int u, int p)
 {
-  r--;
-  int k = 31 - __builtin_clz(r - l + 1);
-  return min(dp1[k][l], dp1[k][r - (1 << k) + 1]);
+  sz[u] = 1;
+  for (auto v : g[u])
+  {
+    if (v == p || vis[v])
+      continue;
+    sz[u] += getsize(v, u);
+  }
+  return sz[u];
 }
-int query2(int l, int r)
+int getct(int u, int p, int n)
 {
-  r--;
-  int k = 31 - __builtin_clz(r - l + 1);
-  return max(dp2[k][l], dp2[k][r - (1 << k) + 1]);
+  for (auto v : g[u])
+  {
+    if (vis[v] || v == p)
+      continue;
+    if (sz[v] * 2 > n)
+      return getct(v, u, n);
+  }
+  return u;
+}
+void getd(int u, int p, int ct)
+{
+  for (auto v : g[u])
+  {
+    if (vis[v] || v == p)
+      continue;
+    d[v][lv[ct]] = d[u][lv[ct]] + 1;
+    getd(v, u, ct);
+  }
+}
+void play(int u = 1, int p = 0)
+{
+  int ct = getct(u, u, getsize(u, u));
+  vis[ct] = 1;
+  pr[ct] = p;
+  lv[ct] = lv[p] + 1;
+  for (auto v : g[ct])
+  {
+    if (vis[v])
+      continue;
+    d[v][lv[ct]] = 1;
+    getd(v, ct, ct);
+  }
+  for (auto v : g[ct])
+  {
+    if (vis[v])
+      continue;
+    play(v, ct);
+  }
+}
+vector<int> r[N], rp[N];
+vector<int> fw[2][N];
+void upd(int i, int j, int idx)
+{
+  if (i == 0)
+    idx = upper_bound(all(r[j]), idx) - r[j].begin();
+  else
+    idx = upper_bound(all(rp[j]), idx) - rp[j].begin();
+  for (; idx < sz(fw[i][j]); idx += idx & -idx)
+    fw[i][j][idx]++;
+}
+int qr(int i, int j, int idx, int res = 0)
+{
+  if (i == 0)
+    idx = upper_bound(all(r[j]), idx) - r[j].begin();
+  else
+    idx = upper_bound(all(rp[j]), idx) - rp[j].begin();
+  for (; idx; idx -= idx & -idx)
+    res += fw[i][j][idx];
+  return res;
 }
 int main()
 {
-  cin.tie(nullptr)->sync_with_stdio(false);
   freopen("input.txt", "r", stdin);
   freopen("correctoutput.txt", "w", stdout);
-  int n;
-  cin >> n;
-  for (int i = 1; i <= n; i++)
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  int n, q;
+  cin >> n >> q;
+  for (int i = 1; i <= n - 1; i++)
   {
-    cin >> a[i];
+    int u, v;
+    cin >> u >> v;
+    g[u].pb(v);
+    g[v].pb(u);
   }
-  n--;
-  for (int i = 1; i <= n; i++)
+  play();
+  vector<pair<int, pii>> qry;
+  for (int i = 0; i < q; i++)
   {
-    d1[i] = max(a[i + 1], a[i]);
-    d2[i] = min(a[i + 1], a[i]);
-  }
-  // build RMQ
-  for (int i = 1; i <= n; i++)
-  {
-    dp1[0][i] = d1[i];
-    dp2[0][i] = d2[i];
-  }
-  for (int i = 0; i < 19; i++)
-  {
-    for (int j = 1; j <= n; j++)
+    int t, u, k;
+    cin >> t;
+    if (t == 1)
     {
-      dp1[i + 1][j] = dp1[i][j];
-      dp2[i + 1][j] = dp2[i][j];
-    }
-    for (int j = 1; j + (2 << i) - 1 <= n; j++)
-    {
-      dp1[i + 1][j] = min(dp1[i][j], dp1[i][j + (1 << i)]);
-      dp2[i + 1][j] = max(dp2[i][j], dp2[i][j + (1 << i)]);
-    }
-  }
-  n++;
-  // ans[1]
-  int ans1 = 1e9;
-  for (int i = 2; i < n; i += 2)
-  {
-    if (a[i] < a[1] && a[i + 1] < a[1])
-      ans1 = min(ans1, i + 1);
-    if (a[i] > a[1] && a[i + 1] > a[1])
-      ans1 = min(ans1, i + 1);
-  }
-  if (ans1 == 1e9)
-    cout << -1 << ' ';
-  else
-    cout << ans1 << ' ';
-  for (int i = 2; i < n; i++)
-  {
-    if (a[i - 1] < a[i] && a[i + 1] < a[i])
-    {
-      cout << 3 << ' ';
-      continue;
-    }
-    if (a[i - 1] > a[i] && a[i + 1] > a[i])
-    {
-      cout << 3 << ' ';
-      continue;
-    }
-    int ans = 1e9;
-    if (i + 2 <= n && (query1(i + 1, n) < a[i] || query2(i + 1, n) > a[i]))
-    {
-      int l = i + 2, r = n;
-      while (l < r)
+      cin >> u >> k;
+      qry.pb({t, {u, k}});
+      int v = u;
+      int cur = 0;
+      while (1)
       {
-        int mid = (l + r) / 2;
-        if (query1(i + 1, mid) < a[i] || query2(i + 1, mid) > a[i])
-          r = mid;
-        else
-          l = mid + 1;
+        r[v].pb(k - cur);
+        if (pr[v] == 0)
+          break;
+        cur = d[u][lv[pr[v]]];
+        rp[v].pb(k - cur);
+        v = pr[v];
       }
-      int sz = l - i + 1;
-      ans = min(ans, sz + (sz % 2 == 0));
     }
-    if (i >= 3 && (query1(1, i - 1) < a[i] || query2(1, i - 1) > a[i]))
-    {
-      int l = 1, r = i - 2;
-      while (l < r)
-      {
-        int mid = (l + r + 1) / 2;
-        if (query1(mid, i - 1) < a[i] || query2(mid, i - 1) > a[i])
-          l = mid;
-        else
-          r = mid - 1;
-      }
-      int sz = i - l + 1;
-      ans = min(ans, sz + (sz % 2 == 0));
-    }
-    if (ans == 1e9)
-      cout << -1 << ' ';
     else
-      cout << ans << ' ';
+    {
+      int u;
+      cin >> u;
+      qry.pb({t, {u, 0}});
+    }
   }
-  ans1 = 1e9;
-  for (int i = n - 1; i > 1; i -= 2)
+  for (int i = 1; i <= n; i++)
   {
-    if (a[i] < a[n] && a[i - 1] < a[n])
-      ans1 = min(ans1, n - i + 2);
-    if (a[i] > a[n] && a[i - 1] > a[n])
-      ans1 = min(ans1, n - i + 2);
+    sort(all(r[i]));
+    sort(all(rp[i]));
+    r[i].erase(unique(all(r[i])), r[i].end());
+    rp[i].erase(unique(all(rp[i])), rp[i].end());
+    fw[0][i].resize(r[i].size() + 1);
+    fw[1][i].resize(rp[i].size() + 1);
   }
-  if (ans1 == 1e9)
-    cout << -1 << ' ';
-  else
-    cout << ans1 << ' ';
-  cout << "\n";
+  for (auto it : qry)
+  {
+    if (it.f == 1)
+    {
+      int cur = 0;
+      int u, v;
+      u = v = it.s.f;
+      int k = it.s.s;
+      while (1)
+      {
+        upd(0, v, k - cur);
+        if (pr[v] == 0)
+          break;
+        cur = d[u][lv[pr[v]]];
+        upd(1, v, k - cur);
+        v = pr[v];
+      }
+    }
+    if (it.f == 2)
+    {
+      int cur = 0;
+      int u, v;
+      u = v = it.s.f;
+      int ans = 0;
+      while (1)
+      {
+        ans += qr(0, v, 1e9) - qr(0, v, cur - 1);
+        if (pr[v] == 0)
+          break;
+        cur = d[u][lv[pr[v]]];
+        ans -= qr(0, v, 1e9) - qr(1, v, cur - 1);
+        v = pr[v];
+      }
+      cout << ans << "\n";
+    }
+  }
 }
