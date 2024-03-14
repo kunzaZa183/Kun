@@ -13,34 +13,40 @@ long long find_rec(std::vector<std::vector<int>> Point, int P, int Q)
 {
   for (auto a : Point)
   {
-    mivi[a[0]].push_back(a[1]);
-    low.push_back(a[1]);
-    si.insert(a[1]);
+    mivi[a[1]].push_back(a[0]);
+    high.push_back(a[0]);
+    si.insert(a[0]);
   }
-  for(auto a:si)
+  vi.push_back(INT_MIN);
+  for (auto a : si)
     vi.push_back(a);
-  sort(low.begin(), low.end());
-  
-  for (auto a : mivi)
-  { 
-    for(auto b:vi)
+  sort(high.begin(), high.end());
+  mivi.emplace(INT_MAX, vector<int>());
+
+  long long total = 0;
+  for (auto &a : mivi)
+  {
+    for (auto b : vi)
     {
-      int one = find(low.begin(),low.end(),b) - low.begin();
-      int three = find(high.begin(),high.end(),b) - high.begin();
+      int one = upper_bound(low.begin(), low.end(), b) - low.begin();
+      int three = upper_bound(high.begin(), high.end(), b) - high.begin();
       int two = low.size() - one;
       int four = high.size() - three;
-      if(abs(three - two)<=P && abs(one - four)<=Q)
-
+      if (abs(three - two) <= P && abs(one - four) <= Q)
+      {
+        total++;
+        // cout << "ANS = " << a.first << ' ' << b << '\n';
+      }
     }
     for (auto b : a.second)
     {
-      low.erase(find(low.begin(), low.end(), b));
-      high.push_back(b);
+      high.erase(find(high.begin(), high.end(), b));
+      low.push_back(b);
     }
     sort(low.begin(), low.end());
     sort(high.begin(), high.end());
   }
-  return 0;
+  return total;
 }
 int main()
 {

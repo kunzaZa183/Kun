@@ -1,70 +1,130 @@
-#include <stdio.h>
-#include <vector>
-#include <assert.h>
 #include "4rec.h"
 #include <bits/stdc++.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-using namespace __gnu_pbds;
 using namespace std;
+const int maxn = 500001;
 map<int, vector<int>> mivi;
-typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag, tree_order_statistics_node_update> oset;
+struct oset
+{
+  int fenwick[maxn],siz;
+  oset()
+  {
+    memset(fenwick,0,sizeof fenwick);
+  }
+  void insert(int x)
+  {
+    siz++;
+    for(int i = x;i<maxn;i+=i&(-i))
+      fenwick[i]++;
+  }
+  void erase(int x)
+  {
+    siz--;
+    for(int i=x;i<maxn;i+=i&(-i))
+      fenwick[i]--;
+  }
+  int order_of_key(int x)
+  {
+    int sum = 0;
+    for(int i = x;i>=1;i-=i&(-i))
+      sum += fenwick[i];
+    return sum;
+  }
+};
 oset below, high;
 int sth = 0;
-long long func(oset &big, oset &small)
-{
-}
+set<int> allx;
+vector<int> all;
 long long find_rec(std::vector<std::vector<int>> Point, int P, int Q)
 {
   for (auto a : Point)
-    mivi[a[0]].push_back(a[1]);
-  long long all = 0;
+  {
+    mivi[a[1]].push_back(a[0]);
+    allx.insert(a[0]);
+  }
+  all.push_back(INT_MIN);
+  for (auto a : allx)
+    all.push_back(a);
+  long long total = 0;
   for (auto &a : mivi)
     for (auto b : a.second)
-      high.insert({b, sth++});
+      high.insert(b);
+  mivi.emplace(INT_MAX, vector<int>());
   for (auto a : mivi)
   {
-    int maxl = 0, minr = 500000;
-    int l = 0, r = 500000;
-    // smallest 1-4 == +p
+    int maxl = 0, minr = all.size() - 1;
+    int l = 0, r = all.size() - 1;
+    // biggest 1-4 == +p
     while (l < r)
     {
       int mid = (l + r + 1) / 2;
-      int valhigh = high.order_of_key({mid, INT_MAX});
-      int vallow = below.size() - below.order_of_key({mid, INT_MAX});
+      int valhigh = high.order_of_key(all[mid]);
+      int vallow = below.siz - below.order_of_key(all[mid]);
       if (valhigh - vallow > P)
         r = mid - 1;
       else
         l = mid;
     }
+    minr = min(minr, l);
+
+    // smallest 4-1 == p
+    l = 0, r = all.size() - 1;
+    while (l < r)
+    {
+      int mid = (l + r) / 2;
+      int valhigh = high.order_of_key(all[mid]);
+      int vallow = below.siz - below.order_of_key(all[mid]);
+      if (vallow - valhigh > P)
+        l = mid + 1;
+      else
+        r = mid;
+    }
     maxl = max(maxl, l);
 
-    // smallest -4 == -p
-    l = 0, r = 500000;
-    while(l<r)
+    // smallest 2-3 == q
+    l = 0, r = all.size() - 1;
+    while (l < r)
     {
-      int mid = (l+r)/2;
-      int valhigh = high.order_of_key({mid, INT_MAX});
-      int vallow = below.size() - below.order_of_key({mid, INT_MAX});
-      if(valhigh)
+      int mid = (l + r) / 2;
+      int valhigh = high.siz - high.order_of_key(all[mid]);
+      int vallow = below.order_of_key(all[mid]);
+      if (valhigh - vallow > Q)
+        l = mid + 1;
+      else
+        r = mid;
     }
+    maxl = max(maxl, l);
 
+    // smallest 3-2 == q
+    l = 0, r = all.size() - 1;
+    while (l < r)
+    {
+      int mid = (l + r + 1) / 2;
+      int valhigh = high.siz - high.order_of_key(all[mid]);
+      int vallow = below.order_of_key(all[mid]);
+      if (vallow - valhigh > Q)
+        r = mid - 1;
+      else
+        l = mid;
+    }
+    minr = min(minr, r);
+
+    total += max(0, minr - maxl + 1);
     for (auto b : a.second)
     {
-      high.erase(high.lower_bound({b, INT_MIN}));
-      below.insert({b, sth++});
+      high.erase(b);
+      below.insert(b);
     }
   }
-  return 0;
+  return total;
 }
-int main()
-{
-  int N, P, Q;
-  scanf("%d %d %d", &N, &P, &Q);
-  std::vector<std::vector<int>> Point(N, std::vector<int>(2, 0));
-  for (int i = 0; i < N; i++)
-  {
-    scanf("%d %d", &Point[i][0], &Point[i][1]);
-  }
-  printf("%lld", find_rec(Point, P, Q));
-}
+// int main()
+// {
+//   int N, P, Q;
+//   scanf("%d %d %d", &N, &P, &Q);
+//   std::vector<std::vector<int>> Point(N, std::vector<int>(2, 0));
+//   for (int i = 0; i < N; i++)
+//   {
+//     scanf("%d %d", &Point[i][0], &Point[i][1]);
+//   }
+//   printf("%lld", find_rec(Point, P, Q));
+// }
