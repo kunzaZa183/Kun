@@ -3,12 +3,58 @@
 using namespace std;
 #define int long long
 
-const int maxn = 3000;
+const int maxn = 100000;
 vector<int> adjlist[maxn];
 vector<int32_t> each;
 vector<pair<int, int>> vpii;
+int where[maxn];
+pair<int,int> all[maxn];
 
-void euler_tour()
+struct node
+{
+  int sum, ct;
+  node *l, *r;
+  node()
+  {
+    sum = 0, ct = 0;
+    l = NULL, r = NULL;
+  }
+}all[maxn];
+
+node *update(node *cur, int curl, int curr, int in, int val)
+{
+  node *tmp = new node;
+  if (curl == curr)
+  {
+    tmp->sum = val;
+    return tmp;
+  }
+  int mid = (curl + curr) / 2;
+  if (in <= mid)
+  {
+    tmp->l = update(cur->l, curl, mid, in, val);
+    tmp->r = cur->r;
+  }
+  else if (in > mid)
+  {
+    tmp->l = cur->l;
+    tmp->r = update(cur->r, mid + 1, curr, in, val);
+  }
+  tmp->sum = tmp->l->sum + tmp->r->sum, tmp->ct = tmp->l->ct + tmp->r->ct;
+}
+
+pair<int, int> disc[maxn];
+int parent[maxn];
+int tim = 0;
+void eulertour(int cur, int par)
+{
+  disc[cur].first = tim++;
+  parent[cur] = par;
+  for (auto a : adjlist[cur])
+    if (a != par)
+      eulertour(a, cur);
+  disc[cur].second = tim - 1;
+}
 
 void init_resource(int32_t N, int32_t Q, std::vector<int32_t> A, std::vector<int32_t> U, std::vector<int32_t> V, int32_t G)
 {
@@ -20,17 +66,12 @@ void init_resource(int32_t N, int32_t Q, std::vector<int32_t> A, std::vector<int
     if (U[i] > V[i])
       swap(U[i], V[i]);
   }
+  eulertour(0,0);
+  for(int i=0;i<N;i++)
 }
 
 long long need_help(int32_t X, int32_t C, int32_t K)
 {
-  all.clear();
-  dfs(C, C, vpii[X]);
-  int total = 0;
-  sort(all.begin(), all.end(),greater<int>());
-  for (int i = 0; i < min(K, int32_t(all.size())); i++)
-    total += all[i];
-  return total;
 }
 int32_t main()
 {
