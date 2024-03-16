@@ -1,40 +1,41 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int long long
-const int maxn = 3000;
-int arr[maxn];
-int32_t main()
+int main()
 {
   cin.tie(0)->sync_with_stdio(0);
   cin.exceptions(cin.failbit);
-  int n;
-  cin >> n;
-  for (int i = 0; i < n; i++)
+  int tests;
+  cin >> tests;
+  while (tests--)
   {
-    cin >> arr[i];
-    arr[i] -= i;
-  }
-  priority_queue<int> pqi;
-  int lowest = 0;
-  pqi.push(arr[0]);
-  pqi.push(arr[0]);
-  pqi.pop();
-  for (int i = 1; i < n; i++)
-  {
-    // cout << lowest << '\n';
-    if (pqi.top() <= arr[i])
+    int m, k;
+    cin >> m >> k;
+    vector<pair<int, int>> vpii;
+    int cur = 1;
+    while (1)
     {
-      pqi.push(arr[i]);
-      pqi.push(arr[i]);
-      pqi.pop();
+      int cur2 = cur + k;
+      cur2--;
+      if (cur2 > m)
+        cur2 = m;
+      vpii.emplace_back(cur, cur2);
+      if (cur2 == m)
+        break;
+      cur = cur2 + 1;
     }
-    else
+    for (auto a : vpii)
     {
-      lowest += pqi.top() - arr[i];
-      pqi.push(arr[i]);
-      pqi.push(arr[i]);
-      pqi.pop();
+      cout << a.first << " ";
+      for (int i = a.second; i > a.first; i--)
+        cout << i << " ";
     }
+    cout << "\n"
+         << vpii.size() << '\n';
+    for (int j = 0; j < vpii.size(); j++)
+    {
+      for (int i = vpii[j].first; i <= vpii[j].second; i++)
+        cout << j + 1 << " ";
+    }
+    cout << "\n";
   }
-  cout << lowest << "\n";
 }

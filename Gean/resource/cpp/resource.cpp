@@ -2,7 +2,7 @@
 #include "resource.h"
 using namespace std;
 #define int long long
-
+const int maxn = 100000, logk = 15;
 mt19937 mt;
 struct treap
 {
@@ -17,27 +17,41 @@ struct treap
   }
 } above, cur;
 
+int cursiz(treap *target)
+{
+  if (target == NULL)
+    return 0;
+  return target->siz;
+}
+
+int cursum(treap *target)
+{
+  if (target == NULL)
+    return 0;
+  return target->sum;
+}
+
 void upd(treap *&sth)
 {
-  if (sth->l == NULL && sth->r == NULL)
-    sth->siz = 0, sth->sum = sth->num;
-  if (sth->l == NULL)
-    sth->siz = sth->r->siz + 1, sth->sum = sth->num + sth->r->sum;
-  if (sth->r == NULL)
-    sth->siz = sth->l->siz + 1, sth->sum = sth->num + sth->l->sum;
-  sth->siz = sth->l->siz + sth->r->siz + 1;
-  sth->sum = sth->num + sth->l->sum + sth->r->sum;
+  sth->siz = cursiz(sth->l) + cursiz(sth->r) + 1;
+  sth->sum = sth->num + cursum(sth->l) + cursum(sth->r);
 }
 
 void split(treap *target, treap *&l, treap *&r, int key)
 {
   if (target == NULL)
     l = NULL, r = NULL;
-  else if(target->num<=key)
+  else if (target->num >= key)
   {
-    target = l;
-    
+    l = target;
+    split(target->r, target->r, r, key);
   }
+  else if (target->num < key)
+  {
+    r = target;
+    split(target->l, l, r->l, key);
+  }
+  upd(target);
 }
 
 void merge(treap *&target, treap *l, treap *r)
@@ -64,11 +78,25 @@ void merge(treap *&target, treap *l, treap *r)
     while (1)
       a++;
   }
+  upd(target);
+}
+
+//(0,k-1)
+int findsum(treap *target, int k)
+{
+  if (target == NULL)
+    return 0;
+  if (k == 0)
+    return 0;
+  if (cursiz(target->l) >= k)
+    return findsum(target->l, k);
+  if (cursiz(target->l) == k)
+    return cursum(target->l);
+  return cursum(target->l) + target->num + findsum(target->r, k - 1 - cursiz(target->l));
 }
 
 void init_resource(int32_t N, int32_t Q, std::vector<int32_t> A, std::vector<int32_t> U, std::vector<int32_t> V, int32_t G)
 {
-  // edit this
   return;
 }
 

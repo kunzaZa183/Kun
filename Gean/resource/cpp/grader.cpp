@@ -8,6 +8,8 @@ vector<int> adjlist[maxn];
 vector<int32_t> each;
 vector<pair<int, int>> vpii;
 
+void euler_tour()
+
 void init_resource(int32_t N, int32_t Q, std::vector<int32_t> A, std::vector<int32_t> U, std::vector<int32_t> V, int32_t G)
 {
   each = A;
@@ -20,21 +22,6 @@ void init_resource(int32_t N, int32_t Q, std::vector<int32_t> A, std::vector<int
   }
 }
 
-vector<int> all;
-void dfs(int cur, int par, pair<int, int> cant)
-{
-  // cout << "CUR = " << cur << "\n";
-  int tmpi = cur, tmpj = par;
-  if (tmpi > tmpj)
-    swap(tmpi, tmpj);
-  if (make_pair(tmpi, tmpj) == cant)
-    return;
-  all.push_back(each[cur]);
-  for (auto a : adjlist[cur])
-    if (a != par)
-      dfs(a, cur, cant);
-}
-
 long long need_help(int32_t X, int32_t C, int32_t K)
 {
   all.clear();
@@ -45,7 +32,6 @@ long long need_help(int32_t X, int32_t C, int32_t K)
     total += all[i];
   return total;
 }
-
 int32_t main()
 {
   int32_t N, Q, G;
