@@ -45,24 +45,26 @@ long long need_help(int32_t X, int32_t C, int32_t K)
   return total;
 }
 
-// int32_t main()
-// {
-//   int32_t N, Q, G;
-//   assert(scanf("%d %d %d", &N, &Q, &G) == 3);
-//   std::vector<int32_t> A(N), U(N - 1), V(N - 1);
-//   for (int i = 0; i < N; i++)
-//   {
-//     assert(scanf("%d", &A[i]) == 1);
-//   }
-//   for (int i = 0; i < N - 1; i++)
-//   {
-//     assert(scanf("%d %d", &U[i], &V[i]) == 2);
-//   }
-//   init_resource(N, Q, A, U, V, G);
-//   for (int i = 0; i < Q; i++)
-//   {
-//     int X, C, K;
-//     assert(scanf("%d %d %d", &X, &C, &K) == 3);
-//     printf("%lld\n", need_help(X, C, K));
-//   }
-// }
+int32_t main()
+{
+  freopen("in.txt","r",stdin);
+  freopen("corr.txt","w",stdout);
+  int32_t N, Q, G;
+  assert(scanf("%d %d %d", &N, &Q, &G) == 3);
+  std::vector<int32_t> A(N), U(N - 1), V(N - 1);
+  for (int i = 0; i < N; i++)
+  {
+    assert(scanf("%d", &A[i]) == 1);
+  }
+  for (int i = 0; i < N - 1; i++)
+  {
+    assert(scanf("%d %d", &U[i], &V[i]) == 2);
+  }
+  init_resource(N, Q, A, U, V, G);
+  for (int i = 0; i < Q; i++)
+  {
+    int32_t X, C, K;
+    assert(scanf("%d %d %d", &X, &C, &K) == 3);
+    printf("%lld\n", need_help(X, C, K));
+  }
+}
